@@ -1,4 +1,5 @@
 package uk.ac.ed.inf;
+import java.lang.Math;
 
 public class LongLat {
     // two public fields in the class
@@ -27,12 +28,15 @@ public class LongLat {
         return (latCheck && longCheck);
     }
 
-    public double distanceTo(LongLat businessSchool) {
-        return 0;
+    // method to calculate the Pythagorean distance between current point and the given location
+    public double distanceTo(LongLat location) {
+        return (Math.sqrt(Math.pow((latitude - location.latitude), 2) + Math.pow((longitude - location.longitude), 2)));
     }
 
-    public boolean closeTo(LongLat alsoAppletonTower) {
-        return true;
+    // method to assess whether the given location is close to drone's current location
+    // we defined distance less than 0.00015 degree as close distance between the two locations
+    public boolean closeTo(LongLat location) {
+        return (distanceTo(location) < 0.00015);
     }
 
     public LongLat nextPosition(int i) {
