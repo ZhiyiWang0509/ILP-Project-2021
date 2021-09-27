@@ -8,6 +8,8 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        LongLat appletonTower = new LongLat(-3.191594,55.943658);
+        System.out.println(appletonTower.isConfined());
+
     }
 }
