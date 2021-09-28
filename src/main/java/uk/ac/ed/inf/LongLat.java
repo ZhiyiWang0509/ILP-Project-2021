@@ -39,8 +39,20 @@ public class LongLat {
         return (distanceTo(location) < 0.00015);
     }
 
+    // return the next location for the drone to fly.
+    // need to first check if the given angle is valid, which is a multiple of 10, in a range [0,350].
     public LongLat nextPosition(int i) {
-        LongLat x = new LongLat(i, i);
-        return x;
+        double move = 0.00015;  // a single move of the drone
+        double new_longitude = longitude;
+        double new_latitude = latitude;
+        if ((i % 10 != 0) || (i < 0) || (i > 350)){
+            System.out.println("The given input angle is a invalid direction.");}
+        else{
+            double diff_longitude = move * Math.cos(Math.toRadians(i));  // the distance to the next position in longitude
+            double diff_latitude = move * Math.sin(Math.toRadians(i));  // the distance to the next position in latitude
+            new_latitude += diff_latitude;
+            new_longitude += diff_longitude;
+        }
+        return new LongLat(new_longitude, new_latitude);
     }
 }
