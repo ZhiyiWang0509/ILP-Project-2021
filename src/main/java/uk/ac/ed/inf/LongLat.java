@@ -22,9 +22,14 @@ public class LongLat {
     }
 
     // method to check if the drone is within the confined area
+    //
     public boolean isConfined() {
-        boolean latCheck = (latitude < 55.946233) && (latitude > 55.942617);
-        boolean longCheck = (longitude > -3.192473) && (longitude < -3.184319);
+        double max_latitude = 55.946233;
+        double min_latitude = 55.942617;
+        double max_longitude = -3.184319;
+        double min_longitude = -3.192473;
+        boolean latCheck = (latitude < max_latitude) && (latitude > min_latitude);
+        boolean longCheck = (longitude > min_longitude) && (longitude < max_longitude);
         return (latCheck && longCheck);
     }
 

@@ -1,9 +1,18 @@
 package uk.ac.ed.inf;
 
+
+
 public class Menus {
+
+    public String localhost;
+    public String port;
+
     //class constructor
     public Menus(String localhost, String port) {
+        this.localhost = localhost;
+        this.port = port;
     }
+
     public int getDeliveryCost(String item1) {
         return 0;
     }
