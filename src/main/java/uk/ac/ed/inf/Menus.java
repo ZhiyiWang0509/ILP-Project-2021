@@ -1,15 +1,14 @@
 package uk.ac.ed.inf;
 
 
-
 public class Menus {
 
-    public String localhost;
+    public String server;
     public String port;
 
     //class constructor
-    public Menus(String localhost, String port) {
-        this.localhost = localhost;
+    public Menus(String server, String port) {
+        this.server = server;
         this.port = port;
     }
 
