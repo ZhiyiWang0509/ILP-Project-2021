@@ -1,10 +1,11 @@
 package uk.ac.ed.inf;
-import java.lang.Math;
 
 /* an instance of this class represents a location of the drone in (longitude, latitude)
  * it also contains relevant methods related to a drone's location
  * to create an instance, the constructor need two doubles: one is longitude, the other is latitude
  */
+
+import java.lang.Math;
 
 public class LongLat {
 
