@@ -1,5 +1,9 @@
 package uk.ac.ed.inf;
 
+/* an instance of the menu class will have the menu information stored on the website
+ * the server name and the port number is required for the class constructor
+ * getDeliveryCost method will return the total price been charged for a single delivery
+ */
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -10,52 +14,51 @@ import java.util.HashMap;
 
 public class Menus {
 
-    public String server;
-    public String port;
+    public String server;  // the server name of the website
+    public String port;  // the port number of the website
+    private final int DELIVERY_COST = 50; // the standard delivery cost for each delivery
 
-    //class constructor
     public Menus(String server, String port) {
         this.server = server;
         this.port = port;
     }
 
-    // The method would extract items from every restaurant as a hashmap with the item name as the key and item price as the value
-    // Hashmap is considered since it's a quick way to lookup price of item.
+    // return the items of every restaurant in the form of HashMap
     public HashMap<String, Integer> getItemList(){
-        WebAccess newAccess = new WebAccess(server, port,"menus","menus");
+        WebAccess newAccess = new WebAccess(server, port,"menus","menus");  // create an instance of WebAccess class to get the content in menus.json
 
-        // create an arrayList contain restaurants information as json object
-        Type listType = new TypeToken<ArrayList<Resturant>>(){}.getType();
-        ArrayList<Resturant> resturantList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);
+        Type listType = new TypeToken<ArrayList<Restaurant>>(){}.getType();
+        ArrayList<Restaurant> resturantList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);  // create an arrayList of Restaurant objects
 
-
-        HashMap<String, Integer> items = new HashMap<>();
-        for (Resturant resturant : resturantList){
-            HashMap<String, Integer> localItems = resturant.getItemsHash(); // generate a hashmap using the getItemHash() method from the restaurant class for each restaurant
-            items.putAll(localItems);  // combine the information of each to a large hashmap
+        HashMap<String, Integer> allItems = new HashMap<>();  // create a new HashMap to store all item information from every single restaurants in the array list
+        for (Restaurant resturant : resturantList){
+            HashMap<String, Integer> localItems = resturant.getItemsHash(); // call the method on every Restaurant object to get a HashMap for each restaurant
+            allItems.putAll(localItems);  // adds the restaurant's items to the overall 'allItems'
         }
-        return items;
+        return allItems;
     }
 
+    // return the overall delivery cost for delivery one item
     public int getDeliveryCost(String item1) {
         HashMap<String, Integer> itemList = getItemList();
-        return itemList.get(item1) + 50;
+        return itemList.get(item1) + DELIVERY_COST;
     }
 
+    // return the overall delivery cost for delivery two items
     public int getDeliveryCost(String item1, String item2) {
         HashMap<String, Integer> itemList = getItemList();
-        return (itemList.get(item1) + itemList.get(item2) + 50);
+        return (itemList.get(item1) + itemList.get(item2) + DELIVERY_COST);
     }
 
+    // return the overall delivery cost for delivery three items
     public int getDeliveryCost(String item1, String item2, String item3) {
         HashMap<String, Integer> itemList = getItemList();
-        return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3) + 50);
+        return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3) + DELIVERY_COST);
     }
 
+    // return the overall delivery cost for delivery four items
     public int getDeliveryCost(String item1, String item2, String item3, String item4) {
         HashMap<String, Integer> itemList = getItemList();
-        return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3)+ itemList.get(item4) + 50);
+        return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3)+ itemList.get(item4) + DELIVERY_COST);
     }
-
-
 }

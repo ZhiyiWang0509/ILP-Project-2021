@@ -1,63 +1,58 @@
 package uk.ac.ed.inf;
 import java.lang.Math;
 
+/* an instance of this class represents a location of the drone in (longitude, latitude)
+ * it also contains relevant methods related to a drone's location
+ * to create an instance, the constructor need two doubles: one is longitude, the other is latitude
+ */
+
 public class LongLat {
-    // two public fields in the class
-    public double longitude;
-    public double latitude;
 
-    /* the four corners of the confined area
-       moves beyond the four locations are not allowed.
+    public double longitude;  // the longitude of the location
+    public double latitude;  // the latitude of the location
+    private final double SINGLE_MOVE = 0.00015;  // a single move of the drone
 
-    public final LongLat forrestHill = new LongLat(-3.192473,55.946233);
-    public final LongLat kfc = new LongLat(-3.184319,55.946233);
-    public final LongLat topMeadows = new LongLat(-3.192473,55.942617);
-    public final LongLat buccleuchBusStop = new LongLat(-3.184319,55.942617);
-    */
-
-    // the constructor of the class LongLat has longitude and latitude as inputs.
     public LongLat(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    // method to check if the drone is within the confined area
-    //
+    // check if the drone is within the confined area
     public boolean isConfined() {
-        double max_latitude = 55.946233;
-        double min_latitude = 55.942617;
-        double max_longitude = -3.184319;
-        double min_longitude = -3.192473;
-        boolean latCheck = (latitude < max_latitude) && (latitude > min_latitude);
-        boolean longCheck = (longitude > min_longitude) && (longitude < max_longitude);
+        double MAX_LATITUDE = 55.946233;  // the latitude for KFC and Forest Hill
+        double MIN_LATITUDE = 55.942617;  // the latitude for Buccleuch St bus stop and Top of Meadows
+        double MAX_LONGITUDE = -3.184319;  // the longitude for KFC and Buccleuch St bus stop
+        double MIN_LONGITUDE = -3.192473;  // the longitude for Forest Hill and Top of Meadows
+        boolean latCheck = (latitude < MAX_LATITUDE) && (latitude > MIN_LATITUDE);
+        boolean longCheck = (longitude > MIN_LONGITUDE) && (longitude < MAX_LONGITUDE);
         return (latCheck && longCheck);
     }
 
-    // method to calculate the Pythagorean distance between current point and the given location
+    // return the Pythagorean distance between current and the given location
     public double distanceTo(LongLat location) {
         return (Math.sqrt(Math.pow((latitude - location.latitude), 2) + Math.pow((longitude - location.longitude), 2)));
     }
 
-    // method to assess whether the given location is close to drone's current location
-    // we defined distance less than 0.00015 degree as close distance between the two locations
+    /*  check if the given location is close to drone's current location
+     *  two locations are said to be close to each other if the distance between them is less than a single move
+     */
     public boolean closeTo(LongLat location) {
-        return (distanceTo(location) < 0.00015);
+        return (distanceTo(location) < SINGLE_MOVE);
     }
 
-    // return the next location for the drone to fly.
-    // need to first check if the given angle is valid, which is a multiple of 10, in a range [0,350].
+    // return the next location for the drone to fly
     public LongLat nextPosition(int i) {
-        double move = 0.00015;  // a single move of the drone
-        double new_longitude = longitude;
-        double new_latitude = latitude;
-        if ((i % 10 != 0) || (i < 0) || (i > 350)){
-            System.out.println("The given input angle is a invalid direction.");}
-        else{
-            double diff_longitude = move * Math.cos(Math.toRadians(i));  // the distance to the next position in longitude
-            double diff_latitude = move * Math.sin(Math.toRadians(i));  // the distance to the next position in latitude
-            new_latitude += diff_latitude;
-            new_longitude += diff_longitude;
+        double newLongitude = longitude;
+        double newLatitude = latitude;
+        if ((i % 10 != 0) || (i < 0) || (i > 350)) {  // check if the given angle is valid: the angle should be a multiple of 10 and within range (0,350)
+            System.out.println("The given input angle is a invalid direction.");
         }
-        return new LongLat(new_longitude, new_latitude);
+        else {
+            double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(i));  // the distance to the next position in longitude
+            double diffLatitude = SINGLE_MOVE * Math.sin(Math.toRadians(i));  // the distance to the next position in latitude
+            newLatitude += diffLatitude;
+            newLongitude += diffLongitude;
+        }
+        return new LongLat(newLongitude, newLatitude);
     }
 }
