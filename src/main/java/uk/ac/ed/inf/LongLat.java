@@ -1,7 +1,7 @@
 package uk.ac.ed.inf;
 
 /* an instance of this class represents a location of the drone in (longitude, latitude)
- * it also contains relevant methods related to a drone's location
+ * it also contains methods: isConfined, distanceTo, closeTo and nextPosition, which are all related to the drone's location.
  * to create an instance, the constructor need two doubles: one is longitude, the other is latitude
  */
 
@@ -35,7 +35,7 @@ public class LongLat {
     }
 
     /*  check if the given location is close to drone's current location
-     *  two locations are said to be close to each other if the distance between them is less than a single move
+     *  two locations are said to be close to each other if the distance in between is less than a single move
      */
     public boolean closeTo(LongLat location) {
         return (distanceTo(location) < SINGLE_MOVE);

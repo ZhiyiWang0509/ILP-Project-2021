@@ -2,12 +2,11 @@ package uk.ac.ed.inf;
 
 /* an instance of the menu class will have the menu information stored on the website
  * the server name and the port number is required for the class constructor
- * getDeliveryCost method will return the total price been charged for a single delivery
+ * getDeliveryCost method will return the total price been charged for a single time delivery service
  */
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class Menus {
         this.port = port;
     }
 
-    // return the items of every restaurant in the form of HashMap
+    // return the items in each restaurant in the form of HashMap
     public HashMap<String, Integer> getItemList(){
         WebAccess newAccess = new WebAccess(server, port,"menus","menus");  // create an instance of WebAccess class to get the content in menus.json
 

@@ -1,6 +1,6 @@
 package uk.ac.ed.inf;
 
-/* an instance of this class is used to build access and get the content stored on the web server
+/* an instance of this class is used to access the content stored on the web server
  * the server has to be started before the access of the website
  * to create an instance of the class, the constructor needs the server name, port number,
  * folder name of the file located and the file name without file extension.
