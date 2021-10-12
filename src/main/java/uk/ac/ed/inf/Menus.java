@@ -56,14 +56,24 @@ public class Menus {
 
     // return the overall delivery cost for delivery one item
     public int getDeliveryCost(String item1) {
-        HashMap<String, Integer> itemList = getItemsPrice();
-        return itemList.get(item1) + DELIVERY_COST;
+        HashMap<String, Integer> itemsPrice = getItemsPrice();
+        try{
+            return itemsPrice.get(item1) + DELIVERY_COST;
+        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
+            System.out.println("The item isn't found in the menu.");
+            return 0;  // return a dummy value
+        }
     }
 
     // return the overall delivery cost for delivery two items
     public int getDeliveryCost(String item1, String item2) {
-        HashMap<String, Integer> itemList = getItemsPrice();
-        return (itemList.get(item1) + itemList.get(item2) + DELIVERY_COST);
+        HashMap<String, Integer> itemsPrice = getItemsPrice();
+        try{
+            return (itemsPrice.get(item1) + itemsPrice.get(item2) + DELIVERY_COST);
+        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
+            System.out.println("The item isn't found in the menu.");
+            return 0;  // return a dummy value
+        }
     }
 
     // return the overall delivery cost for delivery three items
@@ -74,11 +84,16 @@ public class Menus {
         HashMap<String, String> itemsRestaurants = getItemsRestaurants();
         String[] restaurants = {itemsRestaurants.get(item1), itemsRestaurants.get(item2), itemsRestaurants.get(item3)};
         Set<String> restaurantsUnique = new HashSet<>(List.of(restaurants));
-        if(restaurantsUnique.size() > 2){   // check the restaurants the items belongs to
+        if(restaurantsUnique.size() > 2){   // check the restaurants of the items
             System.out.println("Can't take items from more than 2 restaurants for a single order.");
-            return 999;  // return a dummy value if the condition is met
+            return 0;  // return a dummy value
         }else{
-            return (itemsPrice.get(item1) + itemsPrice.get(item2) + itemsPrice.get(item3) + DELIVERY_COST);
+            try{
+                return (itemsPrice.get(item1) + itemsPrice.get(item2) + itemsPrice.get(item3) + DELIVERY_COST);
+            } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
+                System.out.println("The item isn't found in the menu.");
+                return 0;  // return a dummy value
+            }
         }
     }
 
@@ -90,13 +105,17 @@ public class Menus {
         HashMap<String, String> itemsRestaurants = getItemsRestaurants();
         String[] restaurants = {itemsRestaurants.get(item1), itemsRestaurants.get(item2), itemsRestaurants.get(item3), itemsRestaurants.get(item4)};
         Set<String> restaurantsUnique = new HashSet<>(List.of(restaurants));
-        if(restaurantsUnique.size() > 2){   // check the restaurants the items belongs to
+        if(restaurantsUnique.size() > 2){   // check the restaurants of the items
             System.out.println("Can't take items from more than 2 restaurants for a single order.");
-            return 999;  // return a dummy value if the condition is met
+            return 0;  // return a dummy value
         }else {
-            return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3)+ itemList.get(item4) + DELIVERY_COST);
+            try{
+                return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3)+ itemList.get(item4) + DELIVERY_COST);
+            } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
+                System.out.println("The item isn't found in the menu.");
+                return 0;  // return a dummy value
+            }
         }
     }
-
 
 }
