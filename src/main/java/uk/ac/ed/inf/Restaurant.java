@@ -18,13 +18,24 @@ public class Restaurant {
         Integer pence;
     }
 
-    // return every item in the menu in the form of Hash map
+    // return every item's price stored in Hash map
     // the item's name is the key and price is the value for each pair in the map
-    public HashMap<String, Integer> getItemsHash(){
+    public HashMap<String, Integer> getItemsPrice(){
         HashMap<String, Integer> itemList = new HashMap<>();
         for (MenuDetails singleItem : menu) {
             itemList.put(singleItem.item, singleItem.pence);
         }
         return itemList;
     }
+
+    // return the restaurant name correspond to the items in a hash map
+    // this function is used for easier check on the eligibility of the order
+    public HashMap<String, String> getItemsRestaurant(){
+        HashMap<String, String> itemList = new HashMap<>();
+        for (MenuDetails singleItem : menu) {
+            itemList.put(singleItem.item, name);
+        }
+        return itemList;
+    }
+
 }
