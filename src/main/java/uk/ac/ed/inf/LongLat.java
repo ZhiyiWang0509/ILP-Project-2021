@@ -34,9 +34,8 @@ public class LongLat {
         return (Math.sqrt(Math.pow((latitude - location.latitude), 2) + Math.pow((longitude - location.longitude), 2)));
     }
 
-    /*  check if the given location is close to drone's current location
-     *  two locations are said to be close to each other if the distance in between is less than a single move
-     */
+    //  check if the given location is close to drone's current location
+    //  two locations are said to be close to each other if the distance in between is less than a single move
     public boolean closeTo(LongLat location) {
         return (distanceTo(location) < SINGLE_MOVE);
     }
