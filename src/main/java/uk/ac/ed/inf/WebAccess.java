@@ -27,12 +27,24 @@ public class WebAccess {
         this.fileName = fileName;
     }
 
+    // format the input W3words location in to a valid file location
+    public String formatLocation(String location){
+        String[] locSplit = location.split("[.]");
+        String newLoc = "";
+        for (String loc : locSplit) newLoc = newLoc.concat(loc + "/");
+        return (newLoc + "details");
+    }
+
     // return the file content in string format
     public String getResponse(){
         String fileExtension = ".json";
         if(folderName.equals("buildings")) {  // files in different folders might have different extension.
             fileExtension = ".geojson";
         }
+        if(folderName.equals("words")) {  // files in words folder follows the rule of W3words encoding
+            fileName = formatLocation(fileName);
+        }
+
         // the file location to access the file on the website
         String url = "http://" + server + ":" + port + "/" + folderName + "/" + fileName + fileExtension;
 
