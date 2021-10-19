@@ -9,13 +9,17 @@ public class App
 {
     public static void main( String[] args ){
         LongLat appletonTower = new LongLat(-3.191594,55.943658);
-        WebAccess newWord = new WebAccess("localhost", "80", "words", "army.monks.grapes");
+        String w3Test = "army.monks.grapes";
+        W3words newWord = new W3words(w3Test);
+        System.out.println(newWord.toLongLat().isConfined());
+       // WebAccess newWord = new WebAccess("localhost", "80", "words", "army.monks.grapes");
         WebAccess newMenu = new WebAccess("localhost", "80", "menus", "menus");
+        WebAccess newBuilding = new WebAccess("localhost", "80", "buildings", "landmarks");
 
-        // the algorithm pass the json string to the parser for Location, by calling the method in the class return the
-        // location of the point in LongLat object.
-        Location newLocation = new Gson().fromJson(String.valueOf(newWord.getResponse()),Location.class);
-        System.out.println(newLocation.getLocation());
+
+
+        System.out.println(newBuilding.getResponse());
+
 
 
     }

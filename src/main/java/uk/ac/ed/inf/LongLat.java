@@ -55,4 +55,6 @@ public class LongLat {
         }
         return new LongLat(newLongitude, newLatitude);
     }
+
+
 }
