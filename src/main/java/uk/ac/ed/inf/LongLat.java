@@ -6,6 +6,8 @@ package uk.ac.ed.inf;
  */
 
 import java.lang.Math;
+import java.util.*;
+import org.javatuples.Pair;
 
 public class LongLat {
 
@@ -54,6 +56,15 @@ public class LongLat {
             newLongitude += diffLongitude;
         }
         return new LongLat(newLongitude, newLatitude);
+    }
+
+    // return the (gradient, interception) pair of the segment made up with the current location and the given location
+    // assume the given location is confined
+    public Pair<Double, Double> getLineDetails(LongLat location){
+        double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
+        double intercept = latitude - gradient * longitude;
+        return Pair.with(gradient, intercept);
+
     }
 
 
