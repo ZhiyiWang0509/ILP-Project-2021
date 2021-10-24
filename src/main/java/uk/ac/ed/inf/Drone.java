@@ -27,7 +27,7 @@ public class Drone {
 
 
     // check if the drone's route pass the no-fly zone
-    public Boolean checkNoFlys(LongLat destination){
+    public Boolean checkNoFlyZones(LongLat destination){
         // first need to get the line details of the line segment of the route from the drone's current location to its destination
         Pair<Double, Double> route = currentLocation.getLineDetails(destination);
         List<List<LongLat>> noFlyZones = new Buildings("localhost", "80").getNoFlyCoordinates();

@@ -45,7 +45,7 @@ public class App
         LongLat test1 = new LongLat(-3.1892189, 55.9454105);
         LongLat test2 = new LongLat(-3.1891868, 55.9452948);
         Drone newDrone = new Drone();
-        System.out.println(newDrone.checkNoFlys(test2));
+        System.out.println(newDrone.checkNoFlyZones(test2));
 
 
 
