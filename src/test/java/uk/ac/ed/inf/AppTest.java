@@ -12,6 +12,8 @@ public class AppTest {
     private final LongLat appletonTower = new LongLat(-3.186874, 55.944494);
     private final LongLat businessSchool = new LongLat(-3.1873,55.9430);
     private final LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
+    private final LongLat noflypoint1 = new LongLat(-3.1892189, 55.9454105);
+    private final LongLat noflypoint2 = new LongLat(-3.1891868, 55.9452948);
 
     @Test
     public void testIsConfinedTrueA(){
@@ -188,5 +190,29 @@ public class AppTest {
         );
         // Don't forget the standard delivery charge of 50p
         assertEquals(4 * 460 + 50, totalCost);
+    }
+
+    // test if the drone's path would cross the no-fly zones, the first two shouldn't cross and the later two should cross.
+    @Test
+    public void testCheckNoFlyZones1(){
+        Drone newDrone = new Drone();
+        assertFalse(newDrone.checkNoFlyZones(appletonTower));
+    }
+
+    @Test
+    public void testCheckNoFlyZones2(){
+        Drone newDrone = new Drone();
+        assertFalse(newDrone.checkNoFlyZones(businessSchool));
+    }
+
+    @Test
+    public void testCheckNoFlyZones3(){
+        Drone newDrone = new Drone();
+        assertTrue(newDrone.checkNoFlyZones(noflypoint1));
+    }
+    @Test
+    public void testCheckNoFlyZones4(){
+        Drone newDrone = new Drone();
+        assertTrue(newDrone.checkNoFlyZones(noflypoint2));
     }
 }

@@ -14,6 +14,8 @@ public class Drone {
     public static int fly; // an angle indicate the direction the drone will fly to in the next move
     public static final int hover = -999;  // dummy angle used when the drone is hovering, indicating not moving
     public LongLat currentLocation = appletonTower;  // the drone's initial location is Appleton Tower by definition
+    public LongLat deliveryLocation; // the destination of the drone's delivery
+    public LongLat pickUpLocation;  // the place for the drone to pick up the order
 
     // update the drone's current location if the drone made a move
     public void updateLocation(LongLat newLocation){
@@ -30,7 +32,7 @@ public class Drone {
     public Boolean checkNoFlyZones(LongLat destination){
         // first need to get the line details of the line segment of the route from the drone's current location to its destination
         Pair<Double, Double> route = currentLocation.getLineDetails(destination);
-        List<List<LongLat>> noFlyZones = new Buildings("localhost", "80").getNoFlyCoordinates();
+        List<List<LongLat>> noFlyZones = new Buildings("localhost", "80","no-fly-zones").getNoFlyCoordinates();
         boolean isCrossed = false; // assume the drone's route doesn't cross the no-fly zones;
         for(List<LongLat> zone : noFlyZones){
             int length = zone.size();

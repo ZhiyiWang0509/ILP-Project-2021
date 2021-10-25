@@ -16,36 +16,12 @@ public class App
         WebAccess newBuilding = new WebAccess("localhost", "80", "buildings", "no-fly-zones");
         //System.out.println(newBuilding.getResponse());
 
-        // turn the geojson string to a feature collection
 
-       /* List<List<List<Double>>> coordinates = new ArrayList<>();
-        for(Feature fc : noFlyZones.features()) {
-            Polygon polygon = Polygon.fromJson(fc.geometry().toJson()); // cast the feature to polygon object
-            List<List<Double>> localPoints = new ArrayList<>();
-            for(Point point : polygon.coordinates().get(0)){
-                localPoints.add(point.coordinates());
-            }
-            coordinates.add(localPoints);
-        }
-        System.out.println(coordinates.get(0));
-        */
-        Buildings building = new Buildings("localhost", "80");
-        List<LongLat> list1 = building.getNoFlyCoordinates().get(0);
-        int length = list1.size();
-        for(int i=1; i < length; i++){
-            int j = i - 1;
-            System.out.println(Pair.with(list1.get(j).longitude, list1.get(j).latitude));
-        }
+        Buildings building = new Buildings("localhost", "80","landmarks");
+        System.out.println(building.getNoFlyCoordinates());
 
-        // these locations shouldn't cross the no-fly zones
-        LongLat businessSchool = new LongLat(-3.1873,55.9430);
-        LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
 
-        // test1 and test2 are two points on the no-fly zones border lines
-        LongLat test1 = new LongLat(-3.1892189, 55.9454105);
-        LongLat test2 = new LongLat(-3.1891868, 55.9452948);
-        Drone newDrone = new Drone();
-        System.out.println(newDrone.checkNoFlyZones(test2));
+
 
 
 

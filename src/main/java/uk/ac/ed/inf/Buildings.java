@@ -12,30 +12,32 @@ import java.util.List;
 public class Buildings {
     public String server;  // the server name of the website
     public String port;  // the port number of the website
-    private static final String noFlyFileName = "no-fly-zones"; // the name of the file which store the no-fly zones
+    public String fileName;  // the filename want to access
 
-    public Buildings(String server, String port) {
+    public Buildings(String server, String port, String fileName) {
         this.server = server;
         this.port = port;
+        this.fileName = fileName;
     }
 
-    public List<Feature> getFeatures(String fileName){
+    public List<Feature> getFeatures(){
         WebAccess newBuildings = new WebAccess(server, port, "buildings", fileName);
-        FeatureCollection noFlyZones = FeatureCollection.fromJson(newBuildings.getResponse());
-        assert noFlyZones.features() != null;
-        return noFlyZones.features();
+        FeatureCollection featureCollection = FeatureCollection.fromJson(newBuildings.getResponse());
+        assert featureCollection.features() != null;
+        return featureCollection.features();
     }
 
     // get the lists of coordinates that define the no-fly zones as a list of LongLat objects for each area
     public List<List<LongLat>> getNoFlyCoordinates(){
-        List<Feature> features = getFeatures(noFlyFileName);
+        assert fileName.equals("no-fly-zones");
+        List<Feature> features = getFeatures();
         List<List<LongLat>> coordinates = new ArrayList<>();
         for(Feature fc : features) {
             assert fc.geometry() != null;
             Polygon polygon = Polygon.fromJson(fc.geometry().toJson()); // cast the feature to polygon object
             List<LongLat> localPoints = new ArrayList<>();
             for(Point point : polygon.coordinates().get(0)){
-                LongLat newLoc = new LongLat(point.coordinates().get(0), point.coordinates().get(1));
+                LongLat newLoc = new LongLat(point.longitude(), point.latitude());
                 localPoints.add(newLoc);
             }
             coordinates.add(localPoints);
@@ -43,8 +45,19 @@ public class Buildings {
         return coordinates;
     }
 
-    // need a method to get the landmarks for the drone to take detour when it would cross the no-fly zones.
-
+    // get the landmarks for the drone to take detour when it would cross the no-fly zones.
+    public List<LongLat> getLandMarks(){
+        assert fileName.equals("landmarks");
+        List<Feature> features = getFeatures();
+        List<LongLat> coordinates = new ArrayList<>();
+        for(Feature fc : features) {
+            assert fc.geometry() != null;
+            Point point = Point.fromJson(fc.geometry().toJson());
+            LongLat location = new LongLat(point.longitude(), point.latitude());
+            coordinates.add(location);
+        }
+        return coordinates;
+    }
 
 
 }
