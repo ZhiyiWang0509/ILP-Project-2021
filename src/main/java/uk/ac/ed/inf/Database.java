@@ -3,21 +3,18 @@ package uk.ac.ed.inf;
 import java.sql.*;
 import java.util.ArrayList;
 
-import org.javatuples.Triplet;
-
 public class Database {
-    public String server; // machine name of the database: localhost
-    public String port; // the portal, default is 1527
+    private static final String server = "localhost"; // machine name of the database: localhost
+    public String dataBasePort; // the portal, default is 1527
     public String dataBaseName; // the name of the database we want to access
 
-    public Database(String server, String port, String dataBaseName) {
-        this.server = server;
-        this.port = port;
+    public Database(String dataBasePort, String dataBaseName) {
+        this.dataBasePort = dataBasePort;
         this.dataBaseName = dataBaseName;
     }
     // return the database location
     private String getJdbcString(){
-        return "jdbc:derby://" + server + ":" + port + "/derbyDB";
+        return "jdbc:derby://" + server + ":" + dataBasePort + "/derbyDB";
     }
 
     // need a method to get the orders of the day based on the data
@@ -43,7 +40,8 @@ public class Database {
                 orderList.add(order);
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("The connection failed"); // need to work on error handling later
+           // e.printStackTrace();
         }
         return orderList;  // the list could be empty if no order is found with the given date.
     }

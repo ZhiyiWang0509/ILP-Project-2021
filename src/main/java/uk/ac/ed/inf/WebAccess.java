@@ -15,13 +15,12 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 public class WebAccess {
 
-    public String server;  // the server name of the website
+    private static final String server = "localhost";  // the server name of the website
     public String port;  // the port number of the website
     public String folderName;  // the folder where the file is located
     public String fileName;  // the actual file name without the file type extension
 
-    public WebAccess(String server, String port, String folderName, String fileName) {
-        this.server = server;
+    public WebAccess(String port, String folderName, String fileName) {
         this.port = port;
         this.folderName = folderName;
         this.fileName = fileName;

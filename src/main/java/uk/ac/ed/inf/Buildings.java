@@ -10,18 +10,16 @@ import java.util.List;
 
 // Class to deal with geojson files include methods related to non-fly zone and landmarks
 public class Buildings {
-    public String server;  // the server name of the website
-    public String port;  // the port number of the website
+    public String webPort;  // the port number of the website
     public String fileName;  // the filename want to access
 
-    public Buildings(String server, String port, String fileName) {
-        this.server = server;
-        this.port = port;
+    public Buildings(String webPort, String fileName) {
+        this.webPort = webPort;
         this.fileName = fileName;
     }
 
     public List<Feature> getFeatures(){
-        WebAccess newBuildings = new WebAccess(server, port, "buildings", fileName);
+        WebAccess newBuildings = new WebAccess(webPort, "buildings", fileName);
         FeatureCollection featureCollection = FeatureCollection.fromJson(newBuildings.getResponse());
         assert featureCollection.features() != null;
         return featureCollection.features();

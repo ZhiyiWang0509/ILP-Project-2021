@@ -28,14 +28,15 @@ public class Restaurant {
         return itemList;
     }
 
-    // return the restaurant name correspond to the items in a hash map
-    // this function is used for easier check on the eligibility of the order
-    public HashMap<String, String> getItemsRestaurant(){
+    // return the restaurant location correspond to the items in a hash map
+    public HashMap<String, String> getShopLocation(){
         HashMap<String, String> itemList = new HashMap<>();
         for (MenuDetails singleItem : menu) {
-            itemList.put(singleItem.item, name);
+            itemList.put(singleItem.item, location);
         }
         return itemList;
     }
+
+
 
 }

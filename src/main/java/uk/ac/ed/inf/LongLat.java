@@ -64,7 +64,19 @@ public class LongLat {
         double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
         double intercept = latitude - gradient * longitude;
         return Pair.with(gradient, intercept);
+    }
 
+    // return the angle between the two location in int degree
+    public int getAngle(LongLat location){
+        Double dY = Math.abs(location.latitude - latitude);
+        Double dX = Math.abs(location.longitude - longitude);
+        double arcAngle = Math.atan(dY/dX);
+        return (int) Math.toDegrees(arcAngle);
+    }
+
+    // return true if the two locations overlapped
+    public boolean isReached(LongLat location){
+        return (latitude == location.latitude) && (longitude == location.longitude);
     }
 
 
