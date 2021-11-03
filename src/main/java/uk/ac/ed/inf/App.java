@@ -3,6 +3,8 @@ package uk.ac.ed.inf;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -20,7 +22,7 @@ public class App
 
         WebAccess newBuilding = new WebAccess( "80", "buildings", "no-fly-zones");
         //System.out.println(newBuilding.getResponse());
-        Buildings building = new Buildings( "80","landmarks");
+        Buildings building = new Buildings( "9898","landmarks");
         Menus menu = new Menus("9898");
         //System.out.println(building.getNoFlyCoordinates());
 
@@ -28,11 +30,19 @@ public class App
         Drone newDrone = new Drone("2022-04-11", "9898","1527");
         System.out.println(newDrone.getLocations());
 
+        LongLat businessSchool = new LongLat(-3.1873,55.9430);
+        LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
 
+        List<LongLat> landmarks = building.getLandMarks();
 
-
-
-
+        HashMap<Double,LongLat> routeComparator = new HashMap<>();
+        ArrayList<Double> distances = new ArrayList<>();
+        for(LongLat landmark : landmarks){
+            Double distance = appletonTower.distanceTo(landmark);
+            routeComparator.put(distance,landmark);
+            distances.add(distance);
+        }
+        System.out.println(routeComparator.get(Collections.min(distances)));
 
 
     }

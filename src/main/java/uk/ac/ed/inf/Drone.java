@@ -2,10 +2,7 @@ package uk.ac.ed.inf;
 
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /* an instance of this class represent a drone object
 
@@ -33,14 +30,14 @@ public class Drone {
         this.dataBasePort = dataBasePort;
     }
 
-    // return the locations the drone will travel to as a list of pairs:(deliverLocation,[shopLocations])
+    // return the locations the drone will travel to as a linked hashmap of pairs: deliverLocation: [shopLocations]
     // each location is in the w3words format
-    public ArrayList<Pair<String, Set<String>>> getLocations(){
+    public LinkedHashMap<String, Set<String>> getLocations(){
         Database ordersDb = new Database(dataBasePort,ordersDB);
         Database detailsDb = new Database(dataBasePort, orderDetailsDB);
         Menus menus = new Menus(webServerPort);
         ArrayList<Database.Order> orders = ordersDb.getOrders(date);
-        ArrayList<Pair<String, Set<String>>> locations = new ArrayList<>();
+        LinkedHashMap<String, Set<String>> locations = new LinkedHashMap<>();
         for(Database.Order order : orders){
             String deliverTo = order.getDeliverTo();
             Set<String> shopLocations = new HashSet<>();
@@ -50,15 +47,17 @@ public class Drone {
                     String location = menus.getItemRestaurant(item);  // need to catch NullPointerException if the item isn't found?
                     shopLocations.add(location);
                 }
-                if (shopLocations.size() <= 2){  // check the shops the drone would need to travel to
-                    locations.add(Pair.with(deliverTo,shopLocations));
+                if (shopLocations.size() <= 2){  // check the shops the drone would need to travel (max: 2 shops)
+                    locations.put(deliverTo,shopLocations);
                 }
             }
         }
         return locations;
     }
 
-    // let the drone start deliver the orders of the day
+
+    // return the coordinates the drone travelled as a list of LongLat
+    // note the drone have not make actual move here
     // first iterate through the shop positions then the deliverTo location,
     // need to check the distance to Appleton with the moves left, to ensure the drone have moves to return
     // pick the shop that's closer to the current location as the first to go
@@ -70,8 +69,28 @@ public class Drone {
     // after the shop locations, fly to deliverTo location
     // once deliverTo location is reached, write in to database
     // move on to the next order if conditions apply
-    public void startFlying(){
+    public List<LongLat> getFlightPath(){
+        List<LongLat> flightPath = new ArrayList<>();
+        LinkedHashMap<String, Set<String>> locations = getLocations(); // get the list of locations that's valid as an order
+        Buildings buildings = new Buildings(webServerPort,"landmarks");
+        List<LongLat> landmarks = buildings.getLandMarks(); // get the list of landmarks
+        Set<String> deliverToList = locations.keySet();
+        W3words w3words = new W3words(webServerPort);  // need to decode the addresses to LongLat in this method
+        for(String deliverTo : deliverToList){
+            LongLat deliverLngLat = w3words.toLongLat(deliverTo);  // get the delivery address as a LongLat
+            List<LongLat> deliverRoute = new ArrayList<>(); // to store the flight path for this delivery
+            for(String shop :locations.get(deliverTo)){  // iterate through the shop list
+                LongLat shopLngLat = w3words.toLongLat(shop);
+                double distanceToShop = currentLocation.distanceTo(shopLngLat); // the distance from the current location to the shop
+                if(shopLngLat.isConfined() && checkNoFlyZones(shopLngLat)){
+                    deliverRoute.add(shopLngLat); // if the shop can be travelled directly, simply add it in the list
+                } else{
+                    List<Double> distanceToLandMarks = (List<Double>) landmarks.stream().map(x -> currentLocation.distanceTo(x));
+                }
 
+            }
+        }
+        return flightPath;
     }
 
 
@@ -84,8 +103,6 @@ public class Drone {
     public boolean checkMoveCount() {
         return moveCount < MOVES_LIMIT;
     }
-
-
 
 
     // check if the drone's route pass the no-fly zone
