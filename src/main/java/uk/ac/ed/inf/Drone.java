@@ -15,13 +15,10 @@ public class Drone {
     public static final int MOVES_LIMIT = 1500; // the maximum moves allowed for a drone on a single day
     private final double SINGLE_MOVE = 0.00015;  // a single move of the drone
 
-    private static final String ordersDB = "orders"; // the name of one of the database need to access
-    private static final String orderDetailsDB = "orderDetails"; // the name of the other database need to access
 
     private final LongLat appletonTower = new LongLat(-3.186874, 55.944494); //the starting and ending point of the drone
     public LongLat currentLocation = appletonTower;  // the drone's initial location is Appleton Tower by definition
 
-    public static int fly; // an angle indicate the direction the drone will fly to in the next move
     public static final int hover = -999;  // dummy angle used when the drone is hovering, indicating not moving
 
     public Drone(String date, String webServerPort, String dataBasePort) {
@@ -33,15 +30,14 @@ public class Drone {
     // return the locations the drone will travel to as a linked hashmap of pairs: deliverLocation: [shopLocations]
     // each location is in the w3words format
     public LinkedHashMap<String, Set<String>> getLocations(){
-        Database ordersDb = new Database(dataBasePort,ordersDB);
-        Database detailsDb = new Database(dataBasePort, orderDetailsDB);
+        Database ordersDb = new Database(dataBasePort);
         Menus menus = new Menus(webServerPort);
-        ArrayList<Database.Order> orders = ordersDb.getOrders(date);
+        ArrayList<Order> orders = ordersDb.getOrders(date);
         LinkedHashMap<String, Set<String>> locations = new LinkedHashMap<>();
-        for(Database.Order order : orders){
+        for(Order order : orders){
             String deliverTo = order.getDeliverTo();
             Set<String> shopLocations = new HashSet<>();
-            List<String> orderDetails = detailsDb.getOrderDetails(order.getOrderNO()); // get the orders details of the day
+            List<String> orderDetails = order.getItemList(); // get the orders details of the day
             if(orderDetails.size() <= 4){  // check the number of items in the order, each order can take up to 4 items
                 for(String item : orderDetails){
                     String location = menus.getItemRestaurant(item);  // need to catch NullPointerException if the item isn't found?
@@ -69,11 +65,9 @@ public class Drone {
     // after the shop locations, fly to deliverTo location
     // once deliverTo location is reached, write in to database
     // move on to the next order if conditions apply
-    public List<LongLat> getFlightPath(){
+    public List<LongLat> getEntirePath(){
         List<LongLat> flightPath = new ArrayList<>();
         LinkedHashMap<String, Set<String>> locations = getLocations(); // get the list of locations that's valid as an order
-        Buildings buildings = new Buildings(webServerPort,"landmarks");
-        List<LongLat> landmarks = buildings.getLandMarks(); // get the list of landmarks
         Set<String> deliverToList = locations.keySet();
         W3words w3words = new W3words(webServerPort);  // need to decode the addresses to LongLat in this method
         for(String deliverTo : deliverToList){
@@ -81,18 +75,46 @@ public class Drone {
             List<LongLat> deliverRoute = new ArrayList<>(); // to store the flight path for this delivery
             for(String shop :locations.get(deliverTo)){  // iterate through the shop list
                 LongLat shopLngLat = w3words.toLongLat(shop);
-                double distanceToShop = currentLocation.distanceTo(shopLngLat); // the distance from the current location to the shop
                 if(shopLngLat.isConfined() && checkNoFlyZones(shopLngLat)){
                     deliverRoute.add(shopLngLat); // if the shop can be travelled directly, simply add it in the list
-                } else{
-                    List<Double> distanceToLandMarks = (List<Double>) landmarks.stream().map(x -> currentLocation.distanceTo(x));
+                } else{ // otherwise, the drone need to first travel to the closest landmark to get away from the non-fly zones
+                    deliverRoute.add(closestLandMark());
+                    deliverRoute.add(shopLngLat);
                 }
-
             }
+            flightPath.addAll(deliverRoute);
+            flightPath.add(deliverLngLat);
         }
         return flightPath;
     }
 
+    // return the actual path the drone travel during the day within its valid moves
+    public List<LongLat> getFlightPath(){
+        List<LongLat> entirePath = getEntirePath();
+        Iterator<LongLat> pathIterator = entirePath.iterator();
+        List<LongLat> truePath  = new ArrayList<>();
+        while (checkMoveCount()){
+            while(pathIterator.hasNext()){
+                LongLat nextLocation = pathIterator.next();
+                int angle = currentLocation.getAngle(nextLocation);  // get the angle between the current location and the next location
+                double distance = currentLocation.distanceTo(nextLocation);
+                int movesEstimate = (int) (distance/SINGLE_MOVE);
+                if(moveCount >= movesEstimate){
+                    while(!currentLocation.isReached(nextLocation)){
+                        updateLocation(currentLocation.nextPosition(angle));
+                        moveCount += 1;
+                    }
+                    // once reached, the drone need to hover for 1 move
+                    moveCount += 1;
+                    truePath.add(currentLocation);
+                }
+            }
+            // need to consider the moves needed to return to Appleton
+            // also if the moves if not enough for the delivery order, does the drone still need to travel to shop?
+        }
+
+        return truePath;
+    }
 
     // update the drone's current location if the drone made a move
     public void updateLocation(LongLat newLocation){
@@ -103,7 +125,6 @@ public class Drone {
     public boolean checkMoveCount() {
         return moveCount < MOVES_LIMIT;
     }
-
 
     // check if the drone's route pass the no-fly zone
     public Boolean checkNoFlyZones(LongLat destination){
@@ -135,7 +156,19 @@ public class Drone {
     }
 
 
-    // need a method to determine whether the drone need to fly or hover at its current location
+    // return the landmark that's closest to the current drone's location
+    public LongLat closestLandMark(){
+        Buildings building = new Buildings( webServerPort,"landmarks");
+        List<LongLat> landmarks = building.getLandMarks();
+        HashMap<Double,LongLat> distanceComparator = new HashMap<>();
+        ArrayList<Double> distances = new ArrayList<>();
+        for(LongLat landmark : landmarks){
+            Double distance = appletonTower.distanceTo(landmark);
+            distanceComparator.put(distance,landmark);
+            distances.add(distance);
+        }
+        return distanceComparator.get(Collections.min(distances));
+    }
 
 
 

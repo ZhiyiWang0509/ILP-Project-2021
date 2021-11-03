@@ -59,7 +59,6 @@ public class LongLat {
     }
 
     // return the (gradient, interception) pair of the segment made up with the current location and the given location
-    // assume the given location is confined
     public Pair<Double, Double> getLineDetails(LongLat location){
         double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
         double intercept = latitude - gradient * longitude;

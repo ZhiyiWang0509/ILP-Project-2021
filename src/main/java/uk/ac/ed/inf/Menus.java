@@ -56,6 +56,7 @@ public class Menus {
         return itemRestaurants.get(item);
     }
 
+    // the following methods could be removed, as there's one in Order class to calculate the total of the order
     // return the overall delivery cost for delivery one item
     public int getDeliveryCost(String item1) {
         HashMap<String, Integer> itemsPrice = getItemsPrice();
@@ -66,6 +67,7 @@ public class Menus {
             return 9999;  // return a dummy value
         }
     }
+
 
     // return the overall delivery cost for delivery two items
     public int getDeliveryCost(String item1, String item2) {

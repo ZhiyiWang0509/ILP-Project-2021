@@ -15,6 +15,8 @@ public class App
 {
     public static void main( String[] args ){
         LongLat appletonTower = new LongLat(-3.186874, 55.944494);
+        LongLat businessSchool = new LongLat(-3.1873,55.9430);
+        LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
         String w3Test = "army.monks.grapes";
         W3words newWord = new W3words("9898");
        // System.out.println(newWord.toLongLat().isConfined());
@@ -29,20 +31,11 @@ public class App
 
         Drone newDrone = new Drone("2022-04-11", "9898","1527");
         System.out.println(newDrone.getLocations());
+        System.out.println(newDrone.getEntirePath());
 
-        LongLat businessSchool = new LongLat(-3.1873,55.9430);
-        LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
 
-        List<LongLat> landmarks = building.getLandMarks();
 
-        HashMap<Double,LongLat> routeComparator = new HashMap<>();
-        ArrayList<Double> distances = new ArrayList<>();
-        for(LongLat landmark : landmarks){
-            Double distance = appletonTower.distanceTo(landmark);
-            routeComparator.put(distance,landmark);
-            distances.add(distance);
-        }
-        System.out.println(routeComparator.get(Collections.min(distances)));
+
 
 
     }
