@@ -6,6 +6,7 @@ package uk.ac.ed.inf;
  */
 
 import java.lang.Math;
+import java.text.DecimalFormat;
 import java.util.*;
 import org.javatuples.Pair;
 
@@ -39,7 +40,7 @@ public class LongLat {
     //  check if the given location is close to drone's current location
     //  two locations are said to be close to each other if the distance in between is less than a single move
     public boolean closeTo(LongLat location) {
-        return (distanceTo(location) < SINGLE_MOVE);
+        return (distanceTo(location) <= SINGLE_MOVE);
     }
 
     // return the next location for the drone to fly
@@ -58,12 +59,6 @@ public class LongLat {
         return new LongLat(newLongitude, newLatitude);
     }
 
-    // return the (gradient, interception) pair of the segment made up with the current location and the given location
-    public Pair<Double, Double> getLineDetails(LongLat location){
-        double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
-        double intercept = latitude - gradient * longitude;
-        return Pair.with(gradient, intercept);
-    }
 
     // return the angle between the two location in int degree
     public int getAngle(LongLat location){
@@ -73,10 +68,10 @@ public class LongLat {
         return (int) Math.toDegrees(arcAngle);
     }
 
-    // return true if the two locations overlapped
-    public boolean isReached(LongLat location){
-        return (latitude == location.latitude) && (longitude == location.longitude);
-    }
 
+    // return the LongLat object in a more presentable way for human inspection
+    public Pair<Double, Double>formatLongLat(){
+        return new Pair<>(longitude, latitude);
+    }
 
 }

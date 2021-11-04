@@ -7,6 +7,9 @@ package uk.ac.ed.inf;
 import java.util.HashMap;
 import java.util.List;
 
+/* An instance of this class is a json parser for the menus.json
+    getItemsPrice and getShopLocations give ways to easier access the inner class MenuDetails
+ */
 public class Restaurant {
 
     public String name;  // the restaurant name
@@ -19,10 +22,9 @@ public class Restaurant {
     }
 
     // return every item's price stored in Hash map
-    // the item's name is the key and price is the value for each pair in the map
     public HashMap<String, Integer> getItemsPrice(){
         HashMap<String, Integer> itemList = new HashMap<>();
-        for (MenuDetails singleItem : menu) {
+        for (MenuDetails singleItem : menu) {  // the item's name is the key and price is the value for each pair in the map
             itemList.put(singleItem.item, singleItem.pence);
         }
         return itemList;

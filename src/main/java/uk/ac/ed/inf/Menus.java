@@ -30,10 +30,10 @@ public class Menus {
 
     // return the items price for every item in each restaurant in the form of HashMap
     public HashMap<String, Integer> getItemsPrice(){
-        ArrayList<Restaurant> resturantList = getRestaurants();  // get the list of Restaurant objects
+        ArrayList<Restaurant> restaurantList = getRestaurants();  // get the list of Restaurant objects
         HashMap<String, Integer> allItems = new HashMap<>();
-        for (Restaurant resturant : resturantList){
-            HashMap<String, Integer> localItems = resturant.getItemsPrice(); // get a HashMap of (item name, item price) pairs
+        for (Restaurant restaurant : restaurantList){
+            HashMap<String, Integer> localItems = restaurant.getItemsPrice(); // get a HashMap of (item name, item price) pairs
             allItems.putAll(localItems);  // combine each restaurant's information
         }
         return allItems;
@@ -41,10 +41,10 @@ public class Menus {
 
     // return the item's restaurant locations for each item in each restaurant in the form of hash map
     public HashMap<String, String> getItemsLocation() {
-        ArrayList<Restaurant> resturantList = getRestaurants();  // get the list of Restaurant objects
+        ArrayList<Restaurant> restaurantList = getRestaurants();  // get the list of Restaurant objects
         HashMap<String, String> allItems = new HashMap<>();
-        for (Restaurant resturant : resturantList){
-            HashMap<String, String> localItems = resturant.getShopLocation(); // get a HashMap of (item name, restaurant name) pairs
+        for (Restaurant restaurant : restaurantList){
+            HashMap<String, String> localItems = restaurant.getShopLocation(); // get a HashMap of (item name, restaurant name) pairs
             allItems.putAll(localItems);  // combine each restaurant's information
         }
         return allItems;

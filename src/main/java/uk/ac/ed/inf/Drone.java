@@ -1,20 +1,21 @@
 package uk.ac.ed.inf;
 
-import org.javatuples.Pair;
-
+import java.awt.geom.Line2D;
 import java.util.*;
 
 /* an instance of this class represent a drone object
-
+ information like date, web port and database port need to be provided to the constructor
+ the class will output the information needed for the final flightPath GeoJson file
+ as well as parse the data needed for creating two databases.
  */
 public class Drone {
     public String date;  // the date of the delivery
     public String webServerPort; // the port of the webserver to access
     public String dataBasePort; //  the port of the database to access
+
     public static int moveCount;  // count the moves made by the drone on a single day
     public static final int MOVES_LIMIT = 1500; // the maximum moves allowed for a drone on a single day
     private final double SINGLE_MOVE = 0.00015;  // a single move of the drone
-
 
     private final LongLat appletonTower = new LongLat(-3.186874, 55.944494); //the starting and ending point of the drone
     public LongLat currentLocation = appletonTower;  // the drone's initial location is Appleton Tower by definition
@@ -27,21 +28,24 @@ public class Drone {
         this.dataBasePort = dataBasePort;
     }
 
-    // return the locations the drone will travel to as a linked hashmap of pairs: deliverLocation: [shopLocations]
-    // each location is in the w3words format
+    // return the locations of the valid orders the drone may visit as a linked hashmap of pairs: deliverLocation: [shopLocations]
     public LinkedHashMap<String, Set<String>> getLocations(){
         Database ordersDb = new Database(dataBasePort);
         Menus menus = new Menus(webServerPort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         LinkedHashMap<String, Set<String>> locations = new LinkedHashMap<>();
         for(Order order : orders){
-            String deliverTo = order.getDeliverTo();
+            String deliverTo = order.getDeliverTo();  // keep location as w3words format
             Set<String> shopLocations = new HashSet<>();
             List<String> orderDetails = order.getItemList(); // get the orders details of the day
             if(orderDetails.size() <= 4){  // check the number of items in the order, each order can take up to 4 items
                 for(String item : orderDetails){
-                    String location = menus.getItemRestaurant(item);  // need to catch NullPointerException if the item isn't found?
-                    shopLocations.add(location);
+                    try{
+                        String location = menus.getItemRestaurant(item);  // need to catch NullPointerException if the item isn't found?
+                        shopLocations.add(location);
+                    } catch (NullPointerException e){
+                        System.out.println("Item is not found in the menu");
+                    }
                 }
                 if (shopLocations.size() <= 2){  // check the shops the drone would need to travel (max: 2 shops)
                     locations.put(deliverTo,shopLocations);
@@ -75,7 +79,7 @@ public class Drone {
             List<LongLat> deliverRoute = new ArrayList<>(); // to store the flight path for this delivery
             for(String shop :locations.get(deliverTo)){  // iterate through the shop list
                 LongLat shopLngLat = w3words.toLongLat(shop);
-                if(shopLngLat.isConfined() && checkNoFlyZones(shopLngLat)){
+                if(shopLngLat.isConfined() && !checkNoFlyZones(shopLngLat)){
                     deliverRoute.add(shopLngLat); // if the shop can be travelled directly, simply add it in the list
                 } else{ // otherwise, the drone need to first travel to the closest landmark to get away from the non-fly zones
                     deliverRoute.add(closestLandMark());
@@ -98,9 +102,9 @@ public class Drone {
                 LongLat nextLocation = pathIterator.next();
                 int angle = currentLocation.getAngle(nextLocation);  // get the angle between the current location and the next location
                 double distance = currentLocation.distanceTo(nextLocation);
-                int movesEstimate = (int) (distance/SINGLE_MOVE);
+                long movesEstimate = Math.round(distance/SINGLE_MOVE);
                 if(moveCount >= movesEstimate){
-                    while(!currentLocation.isReached(nextLocation)){
+                    while(!currentLocation.closeTo(nextLocation)){
                         updateLocation(currentLocation.nextPosition(angle));
                         moveCount += 1;
                     }
@@ -126,10 +130,8 @@ public class Drone {
         return moveCount < MOVES_LIMIT;
     }
 
-    // check if the drone's route pass the no-fly zone
+    // check if the drone's route pass the no-fly zone return false if don't cross
     public Boolean checkNoFlyZones(LongLat destination){
-        // first need to get the line details of the line segment of the route from the drone's current location to its destination
-        Pair<Double, Double> route = currentLocation.getLineDetails(destination);
         List<List<LongLat>> noFlyZones = new Buildings(webServerPort,"no-fly-zones").getNoFlyCoordinates();
         boolean isCrossed = false; // assume the drone's route doesn't cross the no-fly zones;
         for(List<LongLat> zone : noFlyZones){
@@ -143,16 +145,10 @@ public class Drone {
     }
 
     // check if the two lines intersect, return true if they intersect
-    public Boolean checkIntersect(LongLat droneDestination, LongLat noFlyBorder1, LongLat noFlyBorder2){
-        Pair<Double, Double> route = currentLocation.getLineDetails(droneDestination);
-        Pair<Double, Double> border = noFlyBorder1.getLineDetails(noFlyBorder2);
-        double intersectX = (border.getValue1() - route.getValue1())/(route.getValue0() - border.getValue0());
-        boolean isParallel = route.getValue0().equals(border.getValue0()); // return true if the borders are parallel
-        boolean isIntersect = (intersectX >= Math.max(Math.min(currentLocation.longitude, droneDestination.longitude), //return true if the two segment intersect
-                                Math.min(noFlyBorder1.longitude, noFlyBorder2.longitude)) &
-                                intersectX <= Math.min(Math.max(currentLocation.longitude, droneDestination.longitude),
-                                Math.max(noFlyBorder1.longitude, noFlyBorder2.longitude)));
-        return (!isParallel) & isIntersect;
+    public Boolean checkIntersect(LongLat destination, LongLat noFlyBorder1, LongLat noFlyBorder2){
+        Line2D dronePath = new Line2D.Double(currentLocation.longitude,currentLocation.latitude,destination.longitude,destination.latitude);
+        Line2D noFlyBorder = new Line2D.Double(noFlyBorder1.longitude,noFlyBorder1.latitude,noFlyBorder2.longitude,noFlyBorder2.latitude);
+        return dronePath.intersectsLine(noFlyBorder);
     }
 
 
@@ -168,6 +164,17 @@ public class Drone {
             distances.add(distance);
         }
         return distanceComparator.get(Collections.min(distances));
+    }
+
+    public int roundAngle(int angle){
+        // round the angle to the nearest multiple of 10
+        int remainder = angle % 10;
+        if (remainder < 5){
+            return (angle - remainder);
+        }
+        else{
+            return angle + (10 - remainder);
+        }
     }
 
 
