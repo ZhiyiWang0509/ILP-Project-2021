@@ -44,84 +44,67 @@ public class Drone {
 
 
     // return the coordinates the drone travelled as a list of LongLat
-    // note the drone have not make actual move here
-    // first iterate through the shop positions then the deliverTo location,
-    // need to check the distance to Appleton with the moves left, to ensure the drone have moves to return
-    // pick the shop that's closer to the current location as the first to go
-    // need to check whether the path cross the no-fly zones, if so, need to fly to the closest landmark
-    // recalculate the route involved the detour to landmark if needed
-    // as the path been set, calculate the angle in between
-    // pass the angle to nextPosition to: 1. take count of the drone's moveCount 2. update drone's currentPosition
-    // once reach the position (isReached) hover: pass -999 to the nextPosition method
-    // after the shop locations, fly to deliverTo location
-    // once deliverTo location is reached, write in to database
-    // move on to the next order if conditions apply
     public List<LongLat> getFlightPath(){
         W3words w3words = new W3words(webServerPort);
         List<LongLat> flightPath = new ArrayList<>();  // the list to store the flight path
         List<Order> validOrders = getValidOrders(); // get the list of locations that's valid as an order
         for(Order order : validOrders){
+            // first need to check moves required for completing this delivery
             int orderMoves = getRouteMovesCount(order); // the total moves needed for this order
             int returnMoves = getMovesToAT(w3words.toLongLat(order.deliverTo));  // the moves needed to return to Appleton after the order's finished
             if((moveLeft - orderMoves) >= returnMoves){  // check if the drone still have moves left for returning after finishing this order
                 Set<String> shops = order.getOrderShops(webServerPort);
-                for(String shop : shops){
-                    LongLat nextVisit = w3words.toLongLat(String.valueOf(shop));
-                    if(checkNoFlyZones(nextVisit) && nextVisit.isConfined()) {
-                        flightPath.add(nextVisit);
-                    }else{
+                for (String shop : shops){
+                    LongLat shopLngLat = w3words.toLongLat(shop);
+                    if(checkNoFlyZones(shopLngLat)) {  // if the path to the shop cross the non-fly zone
+                        travelTo(closestLandMark());
                         flightPath.add(closestLandMark());
                     }
+                    travelTo(shopLngLat);
+                    flightPath.add(shopLngLat);
+                    moveLeft -= 1; // hover for 1 move
                 }
-                for(String shop : shops){
-                    LongLat shopLngLat = w3words.toLongLat(shop);
-                    if(checkNoFlyZones(shopLngLat) && shopLngLat.isConfined()){
+                // after visit all the shops need to visit the delivery address to fulfill the order
+                LongLat deliverTo = w3words.toLongLat(order.deliverTo);
+                if(checkNoFlyZones(deliverTo)){ // need to check if the route would pass the non-fly zone as well
+                    travelTo(closestLandMark());
+                    flightPath.add(closestLandMark());
+                }
+                travelTo(deliverTo);
+                flightPath.add(deliverTo);
+                moveLeft -= 1;
 
-                    }else{
-                        LongLat landmark = closestLandMark();
-                        int angle = currentLocation.getAngle(landmark);
-                        while(!currentLocation.closeTo(landmark)){
-                            updateLocation(currentLocation.nextPosition(angle));
-                            moveLeft -= 1;
-                        }
-                        flightPath.add(currentLocation);  // don't need to hover in landmark
-                    }
+            }else{
+                if(checkNoFlyZones(appletonTower)){
+                    travelTo(closestLandMark());
+                    flightPath.add(closestLandMark());
                 }
+                travelTo(appletonTower);
+                flightPath.add(appletonTower);
+                break;
             }
         }
-        /*Set<String> deliverToList = validOrders.keySet();
-        W3words w3words = new W3words(webServerPort);  // need to decode the addresses to LongLat in this method
-
-        for(String deliverTo : deliverToList){
-            LongLat deliverLngLat = w3words.toLongLat(deliverTo);  // get the delivery address as a LongLat
-            List<LongLat> deliverRoute = new ArrayList<>(); // to store the flight path for this delivery
-            for(String shop :validOrders.get(deliverTo)){  // iterate through the shop list
-                LongLat shopLngLat = w3words.toLongLat(shop);
-                if(shopLngLat.isConfined() && !checkNoFlyZones(shopLngLat)){
-                    deliverRoute.add(shopLngLat); // if the shop can be travelled directly, simply add it in the list
-                } else{ // otherwise, the drone need to first travel to the closest landmark to get away from the non-fly zones
-                    deliverRoute.add(closestLandMark());
-                    deliverRoute.add(shopLngLat);
-                }
-            }
-            flightPath.addAll(deliverRoute);
-            flightPath.add(deliverLngLat);
-        }*/
         return flightPath;
     }
-
-
 
     // update the drone's current location if the drone made a move
     public void updateLocation(LongLat newLocation){
         currentLocation = newLocation;
     }
 
+    // make the drone travel to the given location
+    public void travelTo(LongLat location){
+        while(!currentLocation.closeTo(location)){
+            int angle = currentLocation.getAngle(location);
+            updateLocation(currentLocation.nextPosition(angle));
+            moveLeft -= 1;
+        }
+    }
+
     // return true if the drone still have moves available for a day
     public boolean checkMoveCount() {
         return moveLeft != 0;
     }
-
 
     public int getRouteMovesCount(Order order){
         int moves = 0;
