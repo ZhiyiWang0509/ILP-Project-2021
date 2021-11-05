@@ -32,18 +32,17 @@ public class App
 
         Drone newDrone = new Drone("2022-04-11", "9898","1527");
         System.out.println(newDrone.checkNoFlyZones(businessSchool));
+        /*
         double distanceTo = newDrone.currentLocation.distanceTo(businessSchool);
         System.out.println(distanceTo);
         System.out.println(Math.round(distanceTo/0.00015));
         System.out.println("the drone need 10 steps to fly from AT to business school.");
 
         int angle = newDrone.currentLocation.getAngle(businessSchool);
-        if(angle%10 !=0){
-            angle = newDrone.roundAngle(angle);
-        }
-        angle += 180;  // need to modify the angle with the direction of travelling
-        System.out.println(newDrone.currentLocation.nextPosition(angle).formatLongLat());
-        DecimalFormat f = new DecimalFormat("##.000000");
+        System.out.println(angle);
+        //angle += 180;  // need to modify the angle with the direction of travelling
+       // System.out.println(newDrone.currentLocation.nextPosition(angle).formatLongLat());
+       // DecimalFormat f = new DecimalFormat("##.000000");
         LongLat noflypoint1 = new LongLat(-3.1892189, 55.9454105);
         int i = 0;
         while(!newDrone.currentLocation.closeTo(businessSchool)){
@@ -54,6 +53,15 @@ public class App
         System.out.println(i);
         //System.out.println(newDrone.getLocations());
         //System.out.println(newDrone.getEntirePath());
+        */
+        Database ordersDb = new Database("1527");
+        ArrayList<Order> orders = ordersDb.getOrders("2022-04-11");
+        int moveSum = 0;
+        for(Order order : orders){
+            moveSum += newDrone.getRouteMovesCount(order);
+            System.out.println(newDrone.getRouteMovesCount(order));
+        }
+        System.out.println(moveSum);
 
 
 

@@ -60,14 +60,40 @@ public class LongLat {
     }
 
 
-    // return the angle between the two location in int degree
+    // return the angle between the two location in int degree and modify the angle to the nearest multiple of 10
     public int getAngle(LongLat location){
-        Double dY = Math.abs(location.latitude - latitude);
-        Double dX = Math.abs(location.longitude - longitude);
+        double dY = Math.abs(location.latitude - latitude);
+        double dX = Math.abs(location.longitude - longitude);
+        if(dX == 0 && location.latitude > latitude){  // the drone is heading North
+            return 90;
+        }else if(dX == 0 && location.latitude < latitude){
+            return 270;
+        }
         double arcAngle = Math.atan(dY/dX);
-        return (int) Math.toDegrees(arcAngle);
+        int degree = (int) Math.toDegrees(arcAngle);
+        int remainder = degree % 10;
+        if (remainder < 5){
+            degree -= remainder;
+        }
+        else{
+            degree += (10 - remainder);
+        }
+        if(location.longitude>longitude && location.latitude>latitude){  // the drone is flying northeast
+            return degree;
+        }else if(location.longitude<longitude && location.latitude>latitude){  // the drone is flying northwest
+            return (180-degree);
+        }else if(location.longitude<longitude && location.latitude<latitude){  // the drone is flying southwest
+            return (180+degree);
+        }else{  // the drone is flying southeast
+            return (360-degree);
+        }
     }
 
+    public double getMoves(LongLat destination){  // return the move count between the current location and the give location
+        int move = 0;
+        double distance = distanceTo(destination);
+        return Math.round(distance/SINGLE_MOVE);
+    }
 
     // return the LongLat object in a more presentable way for human inspection
     public Pair<Double, Double>formatLongLat(){
