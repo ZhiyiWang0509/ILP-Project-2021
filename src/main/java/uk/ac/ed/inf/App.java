@@ -1,16 +1,14 @@
 package uk.ac.ed.inf;
 
 
-import java.awt.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
-import javax.xml.crypto.Data;
+import com.mapbox.geojson.*;
+import com.mapbox.geojson.Point;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class App
 {
@@ -29,9 +27,42 @@ public class App
         Menus menu = new Menus("9898");
         //System.out.println(building.getNoFlyCoordinates());
 
+        String day = "11";
+        String month = "04";
+        String year = "2022";
+        String date = year + "-" + month + "-" + day;
+        String webServerPort = "9898";
+        String dataBasePort = "1527";
 
-        Drone newDrone = new Drone("2022-04-11", "9898","1527");
-        System.out.println(newDrone.checkNoFlyZones(businessSchool));
+        // parse the flight path into json FeatureCollection
+        Drone newDrone = new Drone(date, webServerPort, dataBasePort);
+        Result flightPath = newDrone.makeDelivery();
+        List<Point> flightPathPoints = new ArrayList<>();
+        for(LongLat location : flightPath.geoJsonList){
+            flightPathPoints.add(Point.fromLngLat(location.longitude,location.latitude));
+        }
+        LineString lineString = LineString.fromLngLats(flightPathPoints);
+        Feature feature = Feature.fromGeometry(lineString);
+        FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
+        // initiate a file writter
+        String fileName = day + "-" + month + "-" + year;
+        try {
+            FileWriter geojsonFile = new FileWriter(fileName);
+            geojsonFile.write(featureCollection.toJson());
+            geojsonFile.close();
+            System.out.println("File write successfully!");
+        } catch (IOException e) {
+            System.err.println("Failed to generate the Geo json file due to error occurs");
+        }
+
+        /* test the travelTo method in Drone class
+        Database ordersDb = new Database("1527");
+        ArrayList<Order> orders = ordersDb.getOrders("2022-04-11");
+        LongLat longLat = newWord.toLongLat(orders.get(0).deliverTo);
+        System.out.println(newDrone.currentLocation.getMoves(longLat));
+        System.out.println(newDrone.travelTo(orders.get(0).orderNO,longLat).size());
+        */
+
         /*
         double distanceTo = newDrone.currentLocation.distanceTo(businessSchool);
         System.out.println(distanceTo);
@@ -54,14 +85,14 @@ public class App
         //System.out.println(newDrone.getLocations());
         //System.out.println(newDrone.getEntirePath());
         */
-        Database ordersDb = new Database("1527");
+        /*Database ordersDb = new Database("1527");
         ArrayList<Order> orders = ordersDb.getOrders("2022-04-11");
         int moveSum = 0;
         for(Order order : orders){
             moveSum += newDrone.getRouteMovesCount(order);
             System.out.println(newDrone.getRouteMovesCount(order));
         }
-        System.out.println(moveSum);
+        System.out.println(moveSum);  */
 
 
 

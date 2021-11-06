@@ -43,11 +43,15 @@ public class Drone {
     }
 
 
-    // return the coordinates the drone travelled as a list of LongLat
-    public List<LongLat> getFlightPath(){
+    // return a Result object as a result of the delivery made by the drone onn the day
+    public Result makeDelivery(){
         W3words w3words = new W3words(webServerPort);
-        List<LongLat> flightPath = new ArrayList<>();  // the list to store the flight path
+        List<LongLat> flightCoordinates = new ArrayList<>();  // the list to store the flight path
+        List<Order> orderMadeList = new ArrayList<>();  // store all the orders made
+        List<FlightPath> flightPaths = new ArrayList<>();  // store all the flight path took
+
         List<Order> validOrders = getValidOrders(); // get the list of locations that's valid as an order
+        flightCoordinates.add(currentLocation);
         for(Order order : validOrders){
             // first need to check moves required for completing this delivery
             int orderMoves = getRouteMovesCount(order); // the total moves needed for this order
@@ -57,34 +61,41 @@ public class Drone {
                 for (String shop : shops){
                     LongLat shopLngLat = w3words.toLongLat(shop);
                     if(checkNoFlyZones(shopLngLat)) {  // if the path to the shop cross the non-fly zone
-                        travelTo(closestLandMark());
-                        flightPath.add(closestLandMark());
+                        flightPaths.addAll(travelTo(order.orderNO,closestLandMark()));
+                        flightCoordinates.add(currentLocation);
                     }
-                    travelTo(shopLngLat);
-                    flightPath.add(shopLngLat);
+                    flightPaths.addAll(travelTo(order.orderNO,shopLngLat));
+                    flightCoordinates.add(currentLocation);
                     moveLeft -= 1; // hover for 1 move
                 }
                 // after visit all the shops need to visit the delivery address to fulfill the order
                 LongLat deliverTo = w3words.toLongLat(order.deliverTo);
                 if(checkNoFlyZones(deliverTo)){ // need to check if the route would pass the non-fly zone as well
-                    travelTo(closestLandMark());
-                    flightPath.add(closestLandMark());
+                    flightPaths.addAll(travelTo(order.orderNO, closestLandMark()));
+                    flightCoordinates.add(currentLocation);
                 }
-                travelTo(deliverTo);
-                flightPath.add(deliverTo);
+                flightPaths.addAll(travelTo(order.orderNO, deliverTo));
+                flightCoordinates.add(currentLocation);  // an order is made
+                orderMadeList.add(order);
                 moveLeft -= 1;
-
-            }else{
+            }else{  // if the drone doesn't have enough move to fulfill the next delivery journey
                 if(checkNoFlyZones(appletonTower)){
-                    travelTo(closestLandMark());
-                    flightPath.add(closestLandMark());
+                    flightPaths.addAll(travelTo(order.orderNO, closestLandMark()));
+                    flightCoordinates.add(currentLocation);
                 }
-                travelTo(appletonTower);
-                flightPath.add(appletonTower);
+                flightPaths.addAll(travelTo(order.orderNO, appletonTower));
+                flightCoordinates.add(currentLocation);
                 break;
             }
         }
-        return flightPath;
+        Order lastOrder = validOrders.get(validOrders.size()-1); // use the order number of the last order as the orderNo for drone's return to the Appleton
+        if(checkNoFlyZones(appletonTower)){
+            flightPaths.addAll(travelTo(lastOrder.orderNO, closestLandMark()));
+            flightCoordinates.add(currentLocation);
+        }
+        flightPaths.addAll(travelTo(lastOrder.orderNO, appletonTower));
+        flightCoordinates.add(currentLocation);
+        return new Result(flightCoordinates,orderMadeList,flightPaths);
     }
 
     // update the drone's current location if the drone made a move
@@ -92,13 +103,18 @@ public class Drone {
         currentLocation = newLocation;
     }
 
-    // make the drone travel to the given location
-    public void travelTo(LongLat location){
+    // return a list recording every move made by the drone on its way to the given location under the given order
+    public List<FlightPath> travelTo(String orderNo, LongLat location){
+        List<FlightPath> flightPaths = new ArrayList<>();
         while(!currentLocation.closeTo(location)){
             int angle = currentLocation.getAngle(location);
-            updateLocation(currentLocation.nextPosition(angle));
+            LongLat nextLocation = currentLocation.nextPosition(angle);
+            FlightPath flightPath = new FlightPath(orderNo,currentLocation.longitude, currentLocation.latitude,angle, nextLocation.longitude, nextLocation.latitude);
+            flightPaths.add(flightPath);
+            updateLocation(nextLocation);
             moveLeft -= 1;
         }
+        return flightPaths;
     }
 
     // return true if the drone still have moves available for a day
@@ -145,11 +161,11 @@ public class Drone {
     public Boolean checkNoFlyZones(LongLat destination){
         List<List<LongLat>> noFlyZones = new Buildings(webServerPort,"no-fly-zones").getNoFlyCoordinates();
         boolean isCrossed = false; // assume the drone's route doesn't cross the no-fly zones;
-        for(List<LongLat> zone : noFlyZones){
-            int length = zone.size();
+        for(List<LongLat> border : noFlyZones){
+            int length = border.size();
             for(int i = 1; i < length; i++){
                 int j = i - 1;
-                isCrossed = isCrossed || checkIntersect(destination, zone.get(j), zone.get(i));
+                isCrossed = isCrossed || checkIntersect(destination, border.get(j), border.get(i));
             }
         }
         return isCrossed;
@@ -197,9 +213,4 @@ public class Drone {
         }
         return distanceComparator.get(Collections.min(distances));
     }
-
-
-
-
-
 }

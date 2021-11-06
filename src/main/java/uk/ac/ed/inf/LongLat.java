@@ -90,7 +90,6 @@ public class LongLat {
     }
 
     public double getMoves(LongLat destination){  // return the move count between the current location and the give location
-        int move = 0;
         double distance = distanceTo(destination);
         return Math.round(distance/SINGLE_MOVE);
     }
