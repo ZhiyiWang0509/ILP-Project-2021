@@ -13,20 +13,6 @@ import java.io.IOException;
 public class App
 {
     public static void main( String[] args ){
-        LongLat appletonTower = new LongLat(-3.186874, 55.944494);
-        LongLat businessSchool = new LongLat(-3.1873,55.9430);
-        LongLat greyfriarsKirkyard = new LongLat(-3.1928,55.9469);
-        String w3Test = "army.monks.grapes";
-        W3words newWord = new W3words("9898");
-       // System.out.println(newWord.toLongLat().isConfined());
-       // WebAccess newWord = new WebAccess("localhost", "80", "words", "army.monks.grapes");
-
-        WebAccess newBuilding = new WebAccess( "80", "buildings", "no-fly-zones");
-        //System.out.println(newBuilding.getResponse());
-        Buildings building = new Buildings( "9898","no-fly-zones");
-        Menus menu = new Menus("9898");
-        //System.out.println(building.getNoFlyCoordinates());
-
         String day = "11";
         String month = "04";
         String year = "2022";
@@ -36,9 +22,9 @@ public class App
 
         // parse the flight path into json FeatureCollection
         Drone newDrone = new Drone(date, webServerPort, dataBasePort);
-        Result flightPath = newDrone.makeDelivery();
+        Result result = newDrone.makeDelivery();
         List<Point> flightPathPoints = new ArrayList<>();
-        for(LongLat location : flightPath.geoJsonList){
+        for(LongLat location : result.geoJsonList){
             flightPathPoints.add(Point.fromLngLat(location.longitude,location.latitude));
         }
         LineString lineString = LineString.fromLngLats(flightPathPoints);
@@ -54,6 +40,13 @@ public class App
         } catch (IOException e) {
             System.err.println("Failed to generate the Geo json file due to error occurs");
         }
+
+        // create databases required to store orders and flightpath made by the drone
+        Database database = new Database(dataBasePort);
+        database.createDeliveriesDb(result.orderDataBase,webServerPort);
+        database.createFlightPathDb(result.flightPathDataBase);
+
+
 
         /* test the travelTo method in Drone class
         Database ordersDb = new Database("1527");
