@@ -100,7 +100,12 @@ public class Drone {
 
     // update the drone's current location if the drone made a move
     public void updateLocation(LongLat newLocation){
-        currentLocation = newLocation;
+        if(newLocation.isConfined()){  // the drone must always be in the confined area
+            currentLocation = newLocation;
+        }else{
+            System.exit(0);
+        }
+
     }
 
     // return a list recording every move made by the drone on its way to the given location under the given order
@@ -117,11 +122,8 @@ public class Drone {
         return flightPaths;
     }
 
-    // return true if the drone still have moves available for a day
-    public boolean checkMoveCount() {
-        return moveLeft != 0;
-    }
 
+    // return the moves needed to deliver the input order
     public int getRouteMovesCount(Order order){
         int moves = 0;
         List<LongLat> routeBuilder = new ArrayList<>();

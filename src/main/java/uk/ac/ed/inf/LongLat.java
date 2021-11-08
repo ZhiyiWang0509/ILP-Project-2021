@@ -6,8 +6,6 @@ package uk.ac.ed.inf;
  */
 
 import java.lang.Math;
-import java.text.DecimalFormat;
-import java.util.*;
 import org.javatuples.Pair;
 
 public class LongLat {
