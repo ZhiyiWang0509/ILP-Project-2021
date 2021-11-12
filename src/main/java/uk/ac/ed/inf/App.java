@@ -14,12 +14,20 @@ public class App
 {
     public static void main( String[] args ){
         try{
+            /*
             String day = args[0];
             String month = args[1];
             String year = args[2];
             String date = year + "-" + month + "-" + day;
             String webServerPort = args[3];
-            String dataBasePort = args[4];
+            String dataBasePort = args[4]; */
+
+            String day = "15";
+            String month = "04";
+            String year = "2022";
+            String date = year + "-" + month + "-" + day;
+            String webServerPort = "9898";
+            String dataBasePort = "1527";
 
             // parse the flight path into json FeatureCollection
             Drone newDrone = new Drone(date, webServerPort, dataBasePort);
@@ -49,7 +57,7 @@ public class App
 
         }catch(ArrayIndexOutOfBoundsException e){
             System.err.println("Invalid input");
-            System.exit(0);
+            System.exit(1);
         }
 
 

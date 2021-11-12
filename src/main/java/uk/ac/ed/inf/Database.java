@@ -57,6 +57,7 @@ public class Database {
              conn.close();
         } catch (SQLException e){
             System.err.println("The connection failed in order database"); // need to work on error handling later
+            System.exit(1);
            // e.printStackTrace();
         }
         return orderList;  // the list could be empty if no order is found with the given date.

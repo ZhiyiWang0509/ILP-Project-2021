@@ -47,6 +47,7 @@ public class LongLat {
         double newLatitude = latitude;
         if ((i % 10 != 0) || (i < 0) || (i > 350)) {  // check if the given angle is valid: the angle should be a multiple of 10 and within range (0,350)
             System.out.println("The given input angle is a invalid direction.");
+            System.exit(1);
         }
         else {
             double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(i));  // the distance to the next position in longitude
@@ -83,7 +84,7 @@ public class LongLat {
         }else if(location.longitude<longitude && location.latitude<latitude){  // the drone is flying southwest
             return (180+degree);
         }else{  // the drone is flying southeast
-            return (360-degree);
+            return (350-degree);
         }
     }
 
@@ -95,6 +96,13 @@ public class LongLat {
     // return the LongLat object in a more presentable way for human inspection
     public Pair<Double, Double>formatLongLat(){
         return new Pair<>(longitude, latitude);
+    }
+
+    // return the (gradient, interception) pair of the segment made up with the current location and the given location
+    public Pair<Double, Double> getLineDetails(LongLat location){
+        double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
+        double intercept = latitude - gradient * longitude;
+        return Pair.with(gradient, intercept);
     }
 
 }

@@ -16,6 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 public class WebAccess {
 
     private static final String server = "localhost";  // the server name of the website
+    private static final HttpClient client = HttpClient.newHttpClient(); // set client to be final type to ensure only one is created
     public String port;  // the port number of the website
     public String folderName;  // the folder where the file is located
     public String fileName;  // the actual file name without the file type extension
@@ -47,7 +48,7 @@ public class WebAccess {
         // the file location to access the file on the website
         String url = "http://" + server + ":" + port + "/" + folderName + "/" + fileName + fileExtension;
 
-        final HttpClient client = HttpClient.newHttpClient(); // set client to be final type to ensure only one is created
+       // private static final HttpClient client = HttpClient.newHttpClient(); // set client to be final type to ensure only one is created
         HttpRequest request = HttpRequest.newBuilder()  // made a web request
                 .GET()
                 .header("accept",(folderName + ".json") )
@@ -58,7 +59,6 @@ public class WebAccess {
             try {
                 response = client.send(request, BodyHandlers.ofString());
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
                 System.exit(0);  // exit the system when there's connection issue with the web server
             }
         }

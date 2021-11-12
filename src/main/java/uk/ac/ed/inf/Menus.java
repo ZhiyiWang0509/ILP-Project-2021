@@ -13,7 +13,6 @@ import java.util.*;
 public class Menus {
 
     public String webPort;  // the port number of the website
-    private final int DELIVERY_COST = 50; // the standard delivery cost for each delivery
 
     public Menus(String webPort) {
         this.webPort = webPort;
@@ -56,51 +55,6 @@ public class Menus {
         return itemRestaurants.get(item);
     }
 
-    // the following methods could be removed, as there's one in Order class to calculate the total of the order
-    // return the overall delivery cost for delivery one item
-    public int getDeliveryCost(String item1) {
-        HashMap<String, Integer> itemsPrice = getItemsPrice();
-        try{
-            return itemsPrice.get(item1) + DELIVERY_COST;
-        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
-            System.out.println("The item isn't found in the menu.");
-            return 9999;  // return a dummy value
-        }
-    }
 
-
-    // return the overall delivery cost for delivery two items
-    public int getDeliveryCost(String item1, String item2) {
-        HashMap<String, Integer> itemsPrice = getItemsPrice();
-        try{
-            return (itemsPrice.get(item1) + itemsPrice.get(item2) + DELIVERY_COST);
-        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
-            System.out.println("The item isn't found in the menu.");
-            return 9999;  // return a dummy value
-        }
-    }
-
-    // return the overall delivery cost for delivery three items
-    public int getDeliveryCost(String item1, String item2, String item3) {
-        HashMap<String, Integer> itemsPrice = getItemsPrice();
-        try{
-            return (itemsPrice.get(item1) + itemsPrice.get(item2) + itemsPrice.get(item3) + DELIVERY_COST);
-        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
-            System.out.println("The item isn't found in the menu.");
-            return 9999;  // return a dummy value
-        }
-    }
-
-    // return the overall delivery cost for delivery four items
-    public int getDeliveryCost(String item1, String item2, String item3, String item4) {
-        HashMap<String, Integer> itemList = getItemsPrice();
-        try{
-            return (itemList.get(item1) + itemList.get(item2) + itemList.get(item3)+ itemList.get(item4) + DELIVERY_COST);
-        } catch (NullPointerException e){  // to catch the case when the input item name doesn't exist
-            System.out.println("The item isn't found in the menu.");
-            return 9999;  // return a dummy value
-        }
-
-    }
 
 }
