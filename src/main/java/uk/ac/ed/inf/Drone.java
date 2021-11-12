@@ -214,7 +214,7 @@ public class Drone {
         return closetLM;
     }
 
-    public static void main(String args[]){
+    public static void main(String[] args){
         Drone testBot = new Drone("2022-04-15","9898","9876");
         LongLat from = new LongLat(-3.191257,55.945626);
         LongLat to = new LongLat(-3.188512,55.944036);
