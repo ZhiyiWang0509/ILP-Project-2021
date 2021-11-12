@@ -130,27 +130,5 @@ public class AppTest {
 
 
 
-    // test if the drone's path would cross the no-fly zones, the first two shouldn't cross and the later two should cross.
-    @Test
-    public void testCheckNoFlyZones1(){
-        Drone newDrone = new Drone("2022-04-11", "9898","1527");
-        assertFalse(newDrone.checkNoFlyZones(appletonTower));
-    }
 
-    @Test
-    public void testCheckNoFlyZones2(){
-        Drone newDrone = new Drone("2022-04-11", "9898","1527");
-        assertFalse(newDrone.checkNoFlyZones(businessSchool));
-    }
-
-    @Test
-    public void testCheckNoFlyZones3(){
-        Drone newDrone = new Drone("2022-04-11", "9898","1527");
-        assertTrue(newDrone.checkNoFlyZones(noflypoint1));
-    }
-    @Test
-    public void testCheckNoFlyZones4(){
-        Drone newDrone = new Drone("2022-04-11", "9898","1527");
-        assertTrue(newDrone.checkNoFlyZones(noflypoint2));
-    }
 }
