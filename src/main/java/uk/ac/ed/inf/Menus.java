@@ -19,20 +19,20 @@ public class Menus {
     }
 
     // return every restaurant in the menus.json file as a list of Restaurant objects
-    public ArrayList<Restaurant> getRestaurants(){
+    public ArrayList<Shop> getRestaurants(){
         WebAccess newAccess = new WebAccess(webPort,"menus","menus");  // create an instance of WebAccess class to get the content in menus.json
 
-        Type listType = new TypeToken<ArrayList<Restaurant>>(){}.getType();
-        ArrayList<Restaurant> resturantList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);  // create an arrayList of Restaurant objects
+        Type listType = new TypeToken<ArrayList<Shop>>(){}.getType();
+        ArrayList<Shop> resturantList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);  // create an arrayList of Restaurant objects
         return resturantList;
     }
 
     // return the items price for every item in each restaurant in the form of HashMap
     public HashMap<String, Integer> getItemsPrice(){
-        ArrayList<Restaurant> restaurantList = getRestaurants();  // get the list of Restaurant objects
+        ArrayList<Shop> shopList = getRestaurants();  // get the list of Restaurant objects
         HashMap<String, Integer> allItems = new HashMap<>();
-        for (Restaurant restaurant : restaurantList){
-            HashMap<String, Integer> localItems = restaurant.getItemsPrice(); // get a HashMap of (item name, item price) pairs
+        for (Shop shop : shopList){
+            HashMap<String, Integer> localItems = shop.getItemsPrice(); // get a HashMap of (item name, item price) pairs
             allItems.putAll(localItems);  // combine each restaurant's information
         }
         return allItems;
@@ -40,10 +40,10 @@ public class Menus {
 
     // return the item's restaurant locations for each item in each restaurant in the form of hash map
     public HashMap<String, String> getItemsLocation() {
-        ArrayList<Restaurant> restaurantList = getRestaurants();  // get the list of Restaurant objects
+        ArrayList<Shop> shopList = getRestaurants();  // get the list of Restaurant objects
         HashMap<String, String> allItems = new HashMap<>();
-        for (Restaurant restaurant : restaurantList){
-            HashMap<String, String> localItems = restaurant.getShopLocation(); // get a HashMap of (item name, restaurant name) pairs
+        for (Shop shop : shopList){
+            HashMap<String, String> localItems = shop.getShopLocation(); // get a HashMap of (item name, restaurant name) pairs
             allItems.putAll(localItems);  // combine each restaurant's information
         }
         return allItems;

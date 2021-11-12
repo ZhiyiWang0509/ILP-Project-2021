@@ -9,6 +9,7 @@ import com.mapbox.geojson.Point;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class App
 {
@@ -22,13 +23,14 @@ public class App
             String webServerPort = args[3];
             String dataBasePort = args[4]; */
 
-            String day = "15";
-            String month = "04";
+            String day = "12";
+            String month = "12";
             String year = "2022";
             String date = year + "-" + month + "-" + day;
             String webServerPort = "9898";
             String dataBasePort = "9876";
 
+            long startTime = System.nanoTime(); // time the application
             // parse the flight path into json FeatureCollection
             Drone newDrone = new Drone(date, webServerPort, dataBasePort);
             Result result = newDrone.makeDelivery();
@@ -50,11 +52,15 @@ public class App
                 System.err.println("Failed to generate the Geo json file due to error occurs");
             }
 
+
             // create databases required to store orders and flightpath made by the drone
             Database database = new Database(dataBasePort);
             database.createDeliveriesDb(result.orderDataBase,webServerPort);
             database.createFlightPathDb(result.flightPathDataBase);
 
+            long duration = System.nanoTime() - startTime;
+            double secondDuration = duration/1E9;
+            System.out.println("The time taken to generate the path is: " + secondDuration + " second");
         }catch(ArrayIndexOutOfBoundsException e){
             System.err.println("Invalid input");
             System.exit(1);

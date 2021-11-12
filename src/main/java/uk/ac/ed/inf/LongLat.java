@@ -8,6 +8,9 @@ package uk.ac.ed.inf;
 import java.lang.Math;
 import org.javatuples.Pair;
 
+/**
+ * A LongLat class represent a geolocation on the map
+ */
 public class LongLat {
 
     public double longitude;  // the longitude of the location
@@ -47,7 +50,7 @@ public class LongLat {
         double newLatitude = latitude;
         if ((i % 10 != 0) || (i < 0) || (i > 350)) {  // check if the given angle is valid: the angle should be a multiple of 10 and within range (0,350)
             System.out.println("The given input angle is a invalid direction.");
-            System.exit(1);
+            System.exit(0);
         }
         else {
             double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(i));  // the distance to the next position in longitude
@@ -98,11 +101,6 @@ public class LongLat {
         return new Pair<>(longitude, latitude);
     }
 
-    // return the (gradient, interception) pair of the segment made up with the current location and the given location
-    public Pair<Double, Double> getLineDetails(LongLat location){
-        double gradient = (location.latitude - latitude)/(location.longitude - longitude);  // avoid the case of divide by zero
-        double intercept = latitude - gradient * longitude;
-        return Pair.with(gradient, intercept);
-    }
+
 
 }
