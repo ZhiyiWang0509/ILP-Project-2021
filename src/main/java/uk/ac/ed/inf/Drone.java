@@ -208,35 +208,6 @@ public class Drone {
         return dronePath.intersectsLine(noFlyBorder);
     }
 
-
-    /*
-    // check if the two lines intersect, return true if they intersect
-    public Boolean checkIntersect(LongLat droneDestination, LongLat noFlyBorder1, LongLat noFlyBorder2){
-        Pair<Double, Double> route = currentLocation.getLineDetails(droneDestination);
-        Pair<Double, Double> border = noFlyBorder1.getLineDetails(noFlyBorder2);
-        double intersectX = (border.getValue1() - route.getValue1())/(route.getValue0() - border.getValue0());
-        boolean isParallel = route.getValue0().equals(border.getValue0()); // return true if the borders are parallel
-        boolean isIntersect = (intersectX >= Math.max(Math.min(currentLocation.longitude, droneDestination.longitude), //return true if the two segment intersect
-                Math.min(noFlyBorder1.longitude, noFlyBorder2.longitude)) &
-                intersectX <= Math.min(Math.max(currentLocation.longitude, droneDestination.longitude),
-                        Math.max(noFlyBorder1.longitude, noFlyBorder2.longitude)));
-        return (!isParallel) & isIntersect;
-    }
-
-    // method override
-    public Boolean checkIntersect(LongLat location1, LongLat location2, LongLat noFlyBorder1, LongLat noFlyBorder2){
-        Pair<Double, Double> route = location1.getLineDetails(location2);
-        Pair<Double, Double> border = noFlyBorder1.getLineDetails(noFlyBorder2);
-        double intersectX = (border.getValue1() - route.getValue1())/(route.getValue0() - border.getValue0());
-        boolean isParallel = route.getValue0().equals(border.getValue0()); // return true if the borders are parallel
-        boolean isIntersect = (intersectX >= Math.max(Math.min(location1.longitude, location2.longitude), //return true if the two segment intersect
-                Math.min(noFlyBorder1.longitude, noFlyBorder2.longitude)) &
-                intersectX <= Math.min(Math.max(location1.longitude, location2.longitude),
-                        Math.max(noFlyBorder1.longitude, noFlyBorder2.longitude)));
-        return (!isParallel) & isIntersect;
-    }
-    */
-
     // return the landmark that's closest to the current drone's location
     public LongLat getLandMark(LongLat travelTo){
         String landmarksFileName = "landmarks";
@@ -244,6 +215,7 @@ public class Drone {
         List<LongLat> landmarks = building.getLandMarks();
         HashMap<Double,LongLat> distanceToLMs = new HashMap<>(); // store the distance to each landmark
         ArrayList<Double> distances = new ArrayList<>(); //
+
         for(LongLat landmark : landmarks){
             if(!checkNoFlyZones(landmark)){
                 Double distance = currentLocation.distanceTo(landmark);
@@ -265,7 +237,8 @@ public class Drone {
         Buildings building = new Buildings( webServerPort,landmarksFileName);
         List<LongLat> landmarks = building.getLandMarks();
         HashMap<Double,LongLat> distanceToLMs = new HashMap<>(); // store the distance to each landmark
-        ArrayList<Double> distances = new ArrayList<>(); //
+        ArrayList<Double> distances = new ArrayList<>();
+
         for(LongLat landmark : landmarks){
             if(!checkNoFlyZones(startLoc,landmark)){  // check if the drone would cross the non-fly as it travel to the landmark
                 Double distance = startLoc.distanceTo(landmark);

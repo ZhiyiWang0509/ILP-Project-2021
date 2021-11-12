@@ -27,7 +27,7 @@ public class App
             String year = "2022";
             String date = year + "-" + month + "-" + day;
             String webServerPort = "9898";
-            String dataBasePort = "1527";
+            String dataBasePort = "9876";
 
             // parse the flight path into json FeatureCollection
             Drone newDrone = new Drone(date, webServerPort, dataBasePort);
