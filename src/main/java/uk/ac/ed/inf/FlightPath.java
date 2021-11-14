@@ -1,14 +1,45 @@
 package uk.ac.ed.inf;
 
-// an instance of this class represent as a row in flightPath database
+/**
+ * this class is used to store information needed to store in the flightpath database
+ * as one of the outcomes of this application.
+ *
+ */
 public class FlightPath {
+    /**
+     * this is the order number of the order that's delivered on this flight path.
+     */
     public String orderNo;
+    /**
+     * this is the longitude of the location the drone is travelling from
+     */
     public double fromLongitude;
+    /**
+     * this is the latitude of the location the drone is travelling from
+     */
     public double fromLatitude;
+    /**
+     * this is the angle between the traveling from location and the traveling to location
+     */
     public int angle;
+    /**
+     * this is the longitude of the location the drone is travelling to
+     */
     public double tolongitude;
+    /**
+     * this is the latitude of the location the drone is travelling to
+     */
     public double toLatitude;
 
+    /**
+     * this is the constructor of FlightPath class
+     * @param orderNo this is the order number of the order delivered on this path
+     * @param fromLongitude this is the longitude of the location the drone is travelling from
+     * @param fromLatitude this is the latitude of the location the drone is travelling from
+     * @param angle this is the angle between the travelling from location and the travelling to location
+     * @param tolongitude this is the longitude of the location the drone is travelling to
+     * @param toLatitude this is the latitude of the location the drone is travelling to
+     */
     public FlightPath(String orderNo, double fromLongitude, double fromLatitude, int angle, double tolongitude, double toLatitude) {
         this.orderNo = orderNo;
         this.fromLongitude = fromLongitude;

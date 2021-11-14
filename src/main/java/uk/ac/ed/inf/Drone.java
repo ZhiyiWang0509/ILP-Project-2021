@@ -65,7 +65,6 @@ public class Drone {
             sortedPrice.add(order.getOrderCost(webServerPort));
         }
         sortedPrice.sort(Collections.reverseOrder());
-        System.out.println(sortedPrice);
         for(Integer price : sortedPrice){
             for(Map.Entry<Integer,Order> orderEntry : comparator.entrySet()){
                 if(orderEntry.getKey().equals(price)){
@@ -84,7 +83,7 @@ public class Drone {
         List<Order> orderMadeList = new ArrayList<>();  // store all the orders made
         List<FlightPath> flightPaths = new ArrayList<>();  // store all the flight path took
 
-        List<Order> validOrders = getValidOrders(); // get the list of locations that's valid as an order
+        List<Order> validOrders = sortOrdersByValue(getValidOrders()); // get the list of locations that's valid as an order
         flightCoordinates.add(currentLocation);
         for(Order order : validOrders){
             LongLat deliverTo = w3words.toLongLat(order.deliverTo);
