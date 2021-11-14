@@ -3,7 +3,7 @@ package uk.ac.ed.inf;
 import java.util.*;
 
 /**
- * An Order class represent a single order for the drone to deliver
+ * An instance of Order class represent a single order for the drone to deliver
  * this class contain essential information to be written into the
  * 'deliveries' database as an output of the application
  *
@@ -52,7 +52,7 @@ public class Order {
      */
     public int getOrderCost(String webPort){
         Menus menus = new Menus(webPort);
-        HashMap<String, Integer> itemsPrice = menus.getItemsPrice();
+        HashMap<String, Integer> itemsPrice = menus.getAllItemsPrice();
         int price = 0;
         try{
             for(String item : itemList){
@@ -83,7 +83,7 @@ public class Order {
         Set<String> shopLocations = new HashSet<>();
         for(String item : itemList){
             try{
-                String location = menus.getItemRestaurant(item);  // need to catch NullPointerException if the item isn't found?
+                String location = menus.getItemShop(item);  // need to catch NullPointerException if the item isn't found?
                 shopLocations.add(location);
             } catch (NullPointerException e){
                 System.err.println("Item is not found in the menu");

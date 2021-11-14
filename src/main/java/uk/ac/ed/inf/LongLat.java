@@ -9,20 +9,44 @@ import java.lang.Math;
 import org.javatuples.Pair;
 
 /**
- * A LongLat class represent a geolocation on the map
+ * An instance of LongLat class represent a geolocation on the map
+ * Each LongLat object is defined by a longitude and a latitude in
+ * double precision.
  */
 public class LongLat {
 
+    /**
+     * this is the longitude of the location in double precision
+     */
     public double longitude;  // the longitude of the location
+    /**
+     * this is the latitude of the location in double precision
+     */
     public double latitude;  // the latitude of the location
+    /**
+     * this is a single move made by the drone in degree
+     */
     private final double SINGLE_MOVE = 0.00015;  // a single move of the drone
 
+    /**
+     * this is the constructor of the LongLat class
+     * @param longitude this is the longitude of the location
+     * @param latitude this is the latitude of the location
+     */
     public LongLat(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
     // check if the drone is within the confined area
+
+    /**
+     * this method check if the location defined is within the confined area
+     * the confined area is a square shape enclosed by the four corners specified
+     * in the method -- MAX_LONGITUDE, MIN_LONGITUDE, MAX_LATITUDE AND MIN_LONGITUDE.
+     * @return true if the location is within the area and false otherwise. The drone
+     * must always move within the confined area.
+     */
     public boolean isConfined() {
         double MAX_LATITUDE = 55.946233;  // the latitude for KFC and Forest Hill
         double MIN_LATITUDE = 55.942617;  // the latitude for Buccleuch St bus stop and Top of Meadows
@@ -34,6 +58,13 @@ public class LongLat {
     }
 
     // return the Pythagorean distance between current and the given location
+
+    /**
+     * this method return the distance between this LongLat location and the location provided
+     * the distance is calculated under Pythagorean distance definition.
+     * @param location this is the other coordinate which form the line segment with this location for distance calculation
+     * @return the distance between this LongLat location and the given location.
+     */
     public double distanceTo(LongLat location) {
         return (Math.sqrt(Math.pow((latitude - location.latitude), 2) + Math.pow((longitude - location.longitude), 2)));
     }

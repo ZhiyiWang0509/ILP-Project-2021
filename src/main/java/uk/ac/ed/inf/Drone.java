@@ -3,6 +3,7 @@ package uk.ac.ed.inf;
 import org.javatuples.Pair;
 
 import java.awt.geom.Line2D;
+import java.util.Collections;
 import java.util.*;
 
 /* an instance of this class represent a drone object
@@ -52,6 +53,27 @@ public class Drone {
             System.exit(0);
         }
         return validOrders;
+    }
+
+    // sort the input order list by the return of deliver the order in descending order
+    public List<Order> sortOrdersByValue(List<Order> orders){
+        List<Order> sortedOrders = new ArrayList<>();
+        List<Integer> sortedPrice = new ArrayList<>();
+        HashMap<Integer,Order> comparator = new HashMap<>();
+        for(Order order : orders){
+            comparator.put(order.getOrderCost(webServerPort),order );
+            sortedPrice.add(order.getOrderCost(webServerPort));
+        }
+        sortedPrice.sort(Collections.reverseOrder());
+        System.out.println(sortedPrice);
+        for(Integer price : sortedPrice){
+            for(Map.Entry<Integer,Order> orderEntry : comparator.entrySet()){
+                if(orderEntry.getKey().equals(price)){
+                    sortedOrders.add(orderEntry.getValue());
+                }
+            }
+        }
+        return sortedOrders;
     }
 
 
@@ -235,5 +257,7 @@ public class Drone {
             //}
             System.out.println();
         }
+        System.out.println(testBot.sortOrdersByValue(testBot.getValidOrders()));
+
     }
 }
