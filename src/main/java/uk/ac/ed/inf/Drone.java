@@ -1,7 +1,5 @@
 package uk.ac.ed.inf;
 
-import org.javatuples.Pair;
-
 import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.*;
