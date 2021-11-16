@@ -95,12 +95,13 @@ public class Drone {
      * the value is passed when an instance is created
      */
     private final List<LongLat> landmarks;
+
     /**
      * this is the constructor of the Drone class
      *
-     * @param date this is the date of making deliveries
+     * @param date          this is the date of making deliveries
      * @param webServerPort this is the portal number of the webserver
-     * @param dataBasePort this is the portal number of the database
+     * @param dataBasePort  this is the portal number of the database
      */
     public Drone(String date, String webServerPort, String dataBasePort) {
         this.date = date;
@@ -110,7 +111,7 @@ public class Drone {
         String NO_FLY_ZONES = "no-fly-zones"; // this is the file name of the 'no-fly-zones.geojson' file without file extension.
         this.noFlyZones = new Buildings(webServerPort, NO_FLY_ZONES).getNoFlyBorders();
         String LANDMARKS = "landmarks"; //this is the file name of the 'landmarks.geojson' file without file extension.
-        this.landmarks = new Buildings( webServerPort, LANDMARKS).getLandMarks();
+        this.landmarks = new Buildings(webServerPort, LANDMARKS).getLandMarks();
     }
 
     /**
@@ -120,16 +121,16 @@ public class Drone {
      *
      * @return a list of valid orders as Order objects.
      */
-    public List<Order> getValidOrders(){
+    public List<Order> getValidOrders() {
         Database ordersDb = new Database(dataBasePort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
-        for(Order order : orders){
-            if(order.itemList.size() <= 4 && order.getOrderShops(webServerPort).size() <= 2){
+        for (Order order : orders) {
+            if (order.itemList.size() <= 4 && order.getOrderShops(webServerPort).size() <= 2) {
                 validOrders.add(order);
             }
         }
-        if(validOrders.isEmpty()){
+        if (validOrders.isEmpty()) {
             System.out.println("There's no valid order to deliver today");
             System.exit(0);
         }
@@ -143,18 +144,18 @@ public class Drone {
      * @param orders this is a list of Order objects to sort.
      * @return a sorted list of Order objects by each order's monetary return in a descending manner.
      */
-    public List<Order> sortOrdersByValue(List<Order> orders){
+    public List<Order> sortOrdersByValue(List<Order> orders) {
         List<Order> sortedOrders = new ArrayList<>();
         List<Integer> sortedPrice = new ArrayList<>();
-        HashMap<Integer,Order> comparator = new HashMap<>();
-        for(Order order : orders){
-            comparator.put(order.getOrderCost(webServerPort),order );
+        HashMap<Integer, Order> comparator = new HashMap<>();
+        for (Order order : orders) {
+            comparator.put(order.getOrderCost(webServerPort), order);
             sortedPrice.add(order.getOrderCost(webServerPort));
         }
         sortedPrice.sort(Collections.reverseOrder());
-        for(Integer price : sortedPrice){
-            for(Map.Entry<Integer,Order> orderEntry : comparator.entrySet()){
-                if(orderEntry.getKey().equals(price)){
+        for (Integer price : sortedPrice) {
+            for (Map.Entry<Integer, Order> orderEntry : comparator.entrySet()) {
+                if (orderEntry.getKey().equals(price)) {
                     sortedOrders.add(orderEntry.getValue());
                 }
             }
@@ -173,7 +174,7 @@ public class Drone {
      *
      * @return a Result object representing the outcome of making the day's delivery.
      */
-    public Result makeDelivery(){
+    public Result makeDelivery() {
         W3words w3words = new W3words(webServerPort);
         List<LongLat> flightCoordinates = new ArrayList<>();  // the list to store the coordinates visited by the drone
         List<Order> orderMadeList = new ArrayList<>();  // store all the orders made
@@ -181,26 +182,26 @@ public class Drone {
 
         List<Order> validOrders = sortOrdersByValue(getValidOrders());
         flightCoordinates.add(currentLocation);
-        for(Order order : validOrders){
+        for (Order order : validOrders) {
             LongLat deliverTo = w3words.toLongLat(order.deliverTo);
             String orderNo = order.orderNO;
             int orderMoves = getRouteMovesCount(order); // the total moves needed for this order
             int returnMoves = getMovesToAT(deliverTo);  // the moves needed to return to Appleton after the order's finished
-            if((MOVE_LEFT - orderMoves) >= returnMoves){  // check if the drone still have moves left for returning after finishing this order
+            if ((MOVE_LEFT - orderMoves) >= returnMoves) {  // check if the drone still have moves left for returning after finishing this order
                 Set<String> shops = order.getOrderShops(webServerPort);
-                for (String shop : shops){
+                for (String shop : shops) {
                     LongLat shopLngLat = w3words.toLongLat(shop);
-                    if(checkNoFlyZones(currentLocation,shopLngLat)) {  // if the path to the shop cross the non-fly zone
-                        LongLat landmark = getLandMark(currentLocation,shopLngLat);
+                    if (checkNoFlyZones(currentLocation, shopLngLat)) {  // if the path to the shop cross the non-fly zone
+                        LongLat landmark = getLandMark(currentLocation, shopLngLat);
                         flightPaths.addAll(travelTo(orderNo, landmark));
                         flightCoordinates.add(currentLocation);
                     }
-                    flightPaths.addAll(travelTo(orderNo,shopLngLat));
+                    flightPaths.addAll(travelTo(orderNo, shopLngLat));
                     flightCoordinates.add(currentLocation);
                     MOVE_LEFT -= 1; // hover for 1 move
                 }
-                if(checkNoFlyZones(currentLocation, deliverTo)){ // need to check if the route would pass the non-fly zone as well
-                    LongLat landmark = getLandMark(currentLocation,deliverTo);
+                if (checkNoFlyZones(currentLocation, deliverTo)) { // need to check if the route would pass the non-fly zone as well
+                    LongLat landmark = getLandMark(currentLocation, deliverTo);
                     flightPaths.addAll(travelTo(orderNo, landmark));
                     flightCoordinates.add(currentLocation);
                 }
@@ -209,7 +210,7 @@ public class Drone {
                 orderMadeList.add(order);
                 MOVE_LEFT -= 1;
             } else {  // if the drone doesn't have enough move to fulfill the next delivery journey
-                if(checkNoFlyZones(currentLocation, APPLETON_TOWER)){
+                if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
                     LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
                     flightPaths.addAll(travelTo(orderNo, landmark));
                     flightCoordinates.add(currentLocation);
@@ -219,15 +220,15 @@ public class Drone {
                 break;
             }
         }
-        Order lastOrder = validOrders.get(validOrders.size()-1); // use the order number of the last order as the orderNo for drone's return to the Appleton
-        if(checkNoFlyZones(currentLocation, APPLETON_TOWER)){
+        Order lastOrder = validOrders.get(validOrders.size() - 1); // use the order number of the last order as the orderNo for drone's return to the Appleton
+        if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
             LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
             flightPaths.addAll(travelTo(lastOrder.orderNO, landmark));
             flightCoordinates.add(currentLocation);
         }
         flightPaths.addAll(travelTo(lastOrder.orderNO, APPLETON_TOWER));
         flightCoordinates.add(currentLocation);
-        return new Result(flightCoordinates,orderMadeList,flightPaths);
+        return new Result(flightCoordinates, orderMadeList, flightPaths);
     }
 
     /**
@@ -238,10 +239,10 @@ public class Drone {
      *
      * @param newLocation the drone's new location
      */
-    public void updateLocation(LongLat newLocation){
-        if(newLocation.isConfined()){  // the drone must always be in the confined area
+    public void updateLocation(LongLat newLocation) {
+        if (newLocation.isConfined()) {  // the drone must always be in the confined area
             currentLocation = newLocation;
-        }else{
+        } else {
             System.err.println("The new location is unconfined");
             System.exit(0);
         }
@@ -254,16 +255,16 @@ public class Drone {
      * after taking a move, the flight path is recorded and the move count need to be reduced by 1 unit.
      *
      * @param orderNo this is the order number of the order the drone is delivering on this path
-     * @param ToLoc this is the location the drone is heading to
+     * @param ToLoc   this is the location the drone is heading to
      * @return a list of paths made by the drone as it travels from its current location to a location that's
      * close to the given location as a list of FlightPath objects.
      */
-    public List<FlightPath> travelTo(String orderNo, LongLat ToLoc){
+    public List<FlightPath> travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
-        while(!currentLocation.closeTo(ToLoc)){
+        while (!currentLocation.closeTo(ToLoc)) {
             int angle = currentLocation.getAngle(ToLoc);
             LongLat nextLocation = currentLocation.nextPosition(angle);
-            FlightPath flightPath = new FlightPath(orderNo,currentLocation.longitude, currentLocation.latitude,angle, nextLocation.longitude, nextLocation.latitude);
+            FlightPath flightPath = new FlightPath(orderNo, currentLocation.longitude, currentLocation.latitude, angle, nextLocation.longitude, nextLocation.latitude);
             flightPaths.add(flightPath);
             updateLocation(nextLocation);
             MOVE_LEFT -= 1;
@@ -280,24 +281,24 @@ public class Drone {
      * @param order this is the order to count for the moved needed.
      * @return the number of moves needed to complete the order provided.
      */
-    public int getRouteMovesCount(Order order){
+    public int getRouteMovesCount(Order order) {
         int moves = 0;
         List<LongLat> routeBuilder = new ArrayList<>();
         routeBuilder.add(currentLocation); // the route start from the drone's current location
         W3words w3words = new W3words(webServerPort);
-        for(String shop : order.getOrderShops(webServerPort)){
+        for (String shop : order.getOrderShops(webServerPort)) {
             routeBuilder.add(w3words.toLongLat(shop));
         }
         routeBuilder.add(w3words.toLongLat(order.deliverTo));
-        for(int i = 1; i < routeBuilder.size(); i++){
+        for (int i = 1; i < routeBuilder.size(); i++) {
             int j = i - 1; // index of the previous location
             LongLat fromLoc = routeBuilder.get(j);
             LongLat ToLoc = routeBuilder.get(i);
-            if(checkNoFlyZones(fromLoc, ToLoc)){
-                LongLat landmark = getLandMark(fromLoc,ToLoc);
+            if (checkNoFlyZones(fromLoc, ToLoc)) {
+                LongLat landmark = getLandMark(fromLoc, ToLoc);
                 moves += fromLoc.getMoves(landmark);
                 moves += landmark.getMoves(ToLoc);
-            }else{
+            } else {
                 moves += fromLoc.getMoves(ToLoc);
             }
         }
@@ -312,16 +313,16 @@ public class Drone {
      * @param location this is the location the drone is travelling from to the Appleton Tower
      * @return the number of moves needed to travel to Appleton Tower from the given LongLat location.
      */
-    public int getMovesToAT(LongLat location){
+    public int getMovesToAT(LongLat location) {
         int moves = 0;
         List<LongLat> path = new ArrayList<>();
         path.add(location);
-        if(checkNoFlyZones(location, APPLETON_TOWER)){
+        if (checkNoFlyZones(location, APPLETON_TOWER)) {
             LongLat landmark = getLandMark(location, APPLETON_TOWER);
             path.add(landmark);
         }
         path.add(APPLETON_TOWER);
-        for(int i = 1; i < path.size(); i++){
+        for (int i = 1; i < path.size(); i++) {
             int j = i - 1;
             moves += path.get(j).getMoves(path.get(i));
         }
@@ -332,16 +333,16 @@ public class Drone {
      * this method would check if the path formed by the two LongLat locations provided
      * would cross any of the no-fly-zones borders.
      *
-     * @param startLoc this is the starting coordinate of forming the path line segment.
+     * @param startLoc  this is the starting coordinate of forming the path line segment.
      * @param finishLoc this is the finishing coordinate of forming the path line segment.
      * @return true if the path formed cross with any of the no-fly-zones borders.
      */
-    public Boolean checkNoFlyZones(LongLat startLoc, LongLat finishLoc){
-        Line2D dronePath = new Line2D.Double(startLoc.longitude,startLoc.latitude,finishLoc.longitude,finishLoc.latitude);
+    public Boolean checkNoFlyZones(LongLat startLoc, LongLat finishLoc) {
+        Line2D dronePath = new Line2D.Double(startLoc.longitude, startLoc.latitude, finishLoc.longitude, finishLoc.latitude);
         boolean isCrossed = false;
-        for(Line2D border : noFlyZones){
+        for (Line2D border : noFlyZones) {
             isCrossed = dronePath.intersectsLine(border);
-            if(isCrossed) {
+            if (isCrossed) {
                 return isCrossed;
             }
         }
@@ -356,18 +357,18 @@ public class Drone {
      * if one of the paths to landmarks crosses, then the other landmark would be return.
      * if both don't cross, the landmark that's closest to the drone's current location would be returned.
      *
-     * @param startLoc this is the starting coordinate of forming the path line segment.
+     * @param startLoc  this is the starting coordinate of forming the path line segment.
      * @param finishLoc this is the finishing coordinate of forming the path line segment.
      * @return the location of the landmark for the drone to travel to as a LongLat object.
      */
-    public LongLat getLandMark(LongLat startLoc, LongLat finishLoc){
-        HashMap<Double,LongLat> distanceToLMs = new HashMap<>(); // store the distance to each landmark
+    public LongLat getLandMark(LongLat startLoc, LongLat finishLoc) {
+        HashMap<Double, LongLat> distanceToLMs = new HashMap<>(); // store the distance to each landmark
         ArrayList<Double> distances = new ArrayList<>();
 
-        for(LongLat landmark : landmarks){
-            if(!checkNoFlyZones(startLoc,landmark)){
+        for (LongLat landmark : landmarks) {
+            if (!checkNoFlyZones(startLoc, landmark)) {
                 Double distance = startLoc.distanceTo(landmark);
-                distanceToLMs.put(distance,landmark);
+                distanceToLMs.put(distance, landmark);
                 distances.add(distance);
             }
         }
@@ -375,4 +376,17 @@ public class Drone {
         return closetLM;
     }
 
+    public static void main(String[] args) {
+        Drone testBot = new Drone("2022-04-15", "9898", "9876");
+        LongLat from = new LongLat(-3.191257, 55.945626);
+        LongLat to = new LongLat(-3.188512, 55.944036);
+        LongLat testLM = testBot.getLandMark(to, from);
+        System.out.println(testLM.formatLongLat());
+        System.out.println(testBot.checkNoFlyZones(from, testLM));
+    }
+
+
+    // Buildings buildings = new Buildings("9898", "no-fly-zones");
+
 }
+
