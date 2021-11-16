@@ -26,8 +26,6 @@ public class W3words {
         this.webPort = webPort;
     }
 
-    // return the LongLat location by searching on the web server
-
     /**
      * this method would return the LongLat location corresponding to the w3words
      * location provided as the parameter.

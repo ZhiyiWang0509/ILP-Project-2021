@@ -11,7 +11,7 @@ public class Shop {
     /**
      * this is the name of the shop
      */
-    public String name;
+    private String name;
     /**
      * this is the location of the shop encoded in W3words format
      */
@@ -21,10 +21,10 @@ public class Shop {
      * a menu contain information of the items sell in the shop
      * and their prices
      */
-    List<MenuDetails> menu;  // the menu of the restaurant
+    public List<MenuDetails> menu;  // the menu of the restaurant
 
     /**
-     * MenuDetails is a inner class of the Shop class
+     * MenuDetails is an inner class of the Shop class
      * it's used to parse the MenuDetails in the json file
      *
      * item field store the name of the item sell

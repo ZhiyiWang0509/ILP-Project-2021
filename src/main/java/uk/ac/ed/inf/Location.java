@@ -1,29 +1,62 @@
 package uk.ac.ed.inf;
 
-import java.util.List;
-
-/* an instance of this class act as a json parser for the json content related to a w3words details json file
- * the local fields here matched the corresponding keys in the json file
+/**
+ * this class is mainly used as a parser for json files stored in the 'words' folder on the webserver.
+ * fields name in this class match exactly to the field names in the json file.
+ *
  */
 public class Location {
-    String country;
-    Square square;
-    String nearestPlace;
-    Coordinate coordinates;
-    String words;
-    String language;
-    String map;
+    /**
+     * this is the country of the location located in
+     */
+    private String country;
+    /**
+     * this is to match the 'square' field in the json
+     */
+    private Square square;
+    /**
+     * this is the nearest city relative to the location
+     */
+    private String nearestPlace;
+    /**
+     * this is the coordinates of the location as an Coordinate object
+     */
+    public Coordinate coordinates;
+    /**
+     * this is the w3words format of the location
+     */
+    private String words;
+    /**
+     * this is to match the 'language' field in json
+     */
+    private String language;
+    /**
+     * this is a representation of the location on 'https://w3w.co' website
+     */
+    private String map;
 
-    public static class Coordinate {
+    /**
+     * this is an inner class created to match the field: coordinates on the json file
+     */
+    private static class Coordinate {
         Double lng;
         Double lat;
     }
-    public static class Square {
+
+    /**
+     * this is an inner class to match the field square on the json file
+     */
+    private static class Square {
         Coordinate southwest;
         Coordinate northeast;
     }
 
-    // return the geo-location according to the w3words location encode.
+    /**
+     * this method would return the LongLat location corresponding to the w3words location
+     * as a LongLat object
+     *
+     * @return the location corresponding to te w3words location as an LongLat object
+     */
     public LongLat getLocation(){
         return new LongLat(coordinates.lng, coordinates.lat);
     }
