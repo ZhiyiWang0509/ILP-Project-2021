@@ -6,8 +6,9 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
- * This class would access the menu.json file on the webserver and extract necessary information from
- * the file.
+ * This class would access the menu.json file on the webserver
+ * This class contain methods to return necessary information related to the items available
+ * to order from the application.
  *
  */
 

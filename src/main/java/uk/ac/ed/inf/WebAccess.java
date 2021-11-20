@@ -70,7 +70,7 @@ public class WebAccess {
      * location is stored in the 'words' folder.
      *
      */
-    public String formatLocation(String location){
+    private String formatLocation(String location){
         String[] locSplit = location.split("[.]");
         String newLoc = "";
         for (String loc : locSplit) newLoc = newLoc.concat(loc + "/");

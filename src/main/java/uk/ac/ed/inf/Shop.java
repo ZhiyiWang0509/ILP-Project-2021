@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *  The Shop class act as a json parser for the Menus.json file stored on the web server
+ *  This class act as a json parser for the Menus.json file stored on the web server
+ *  it also contains methods to modify vital attributes: location, menu, in to convenient format for later implementations.
+ *  fields name in this class match exactly to the field names in the json file.
+ *
  */
 public class Shop {
 

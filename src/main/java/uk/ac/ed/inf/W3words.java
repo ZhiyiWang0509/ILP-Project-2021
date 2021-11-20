@@ -2,8 +2,6 @@ package uk.ac.ed.inf;
 
 import com.google.gson.Gson;
 
-// A simple class to decode the What3Words location into LongLat location
-
 /**
  * this class acts as a translator of location that's in W3words format to LongLat object
  * which is acceptable by most of the methods defined in other classes.
