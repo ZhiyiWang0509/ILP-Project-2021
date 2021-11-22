@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this class is used to help to make information stored in geojson files in to more accessible format
+ * this class is used to help to transform information stored in geojson files in to more accessible format
  * this class could only allow access to either no-fly-zones.geojson or landmarks.geojson
  * incorrect filename could cause the termination of the program
  *

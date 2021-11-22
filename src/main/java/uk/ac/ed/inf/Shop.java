@@ -6,7 +6,7 @@ import java.util.List;
 /**
  *  This class act as a json parser for the Menus.json file stored on the web server
  *  it also contains methods to modify vital attributes: location, menu, in to convenient format for later implementations.
- *  fields name in this class match exactly to the field names in the json file.
+ *  fields name in this class match exactly to the attribute names in the json file.
  *
  */
 public class Shop {
@@ -24,7 +24,7 @@ public class Shop {
      * a menu contain information of the items sell in the shop
      * and their prices
      */
-    public List<MenuDetails> menu;  // the menu of the restaurant
+    public List<MenuDetails> menu;
 
     /**
      * MenuDetails is an inner class of the Shop class
@@ -55,8 +55,6 @@ public class Shop {
         }
         return itemList;
     }
-
-    // return the restaurant location correspond to the items in a hash map
 
     /**
      * this method return a hashmap of the items in the shop
