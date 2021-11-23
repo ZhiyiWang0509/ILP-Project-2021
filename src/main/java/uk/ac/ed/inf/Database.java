@@ -46,7 +46,7 @@ public class Database {
      *
      * @return the location of the database to access the derby database.
      */
-    private String getJdbcString(){
+    public String getJdbcString(){
         return "jdbc:derby://" + server + ":" + dataBasePort + "/derbyDB";
     }
 

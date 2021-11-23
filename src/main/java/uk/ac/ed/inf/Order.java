@@ -38,9 +38,6 @@ public class Order {
         this.itemList = itemList;
     }
 
-
-    // return the total cost of the order by given the list of items
-
     /**
      * this method return the total amount of money made by doing this order
      * the total amount include a fixed 50 pence of delivery charge which is
@@ -64,8 +61,6 @@ public class Order {
         int DELIVERY_COST = 50;
         return price + DELIVERY_COST;
     }
-
-    // return a set of shops need to visit for this order
 
     /**
      * this method return a set of all the shops needs to visit to pick up all the items

@@ -40,10 +40,13 @@ public class Buildings {
 
     /**
      * this method get access to the web server and extract information from the file specified
-     * by the file name as a list of Feature object
+     * by the file name as a list of Feature object.
+     * the access to the webserver is achieved by creating an instance of WebAccess class and the
+     * content in the file is obtained by calling the getResponse method on that instance.
+     *
      * @return a list of Features in the geojson file accessed
      */
-    public List<Feature> getFeatures(){
+    private List<Feature> getFeatures(){
         WebAccess newBuildings = new WebAccess(webPort, "buildings", fileName);
         FeatureCollection featureCollection = FeatureCollection.fromJson(newBuildings.getResponse());
         assert featureCollection.features() != null;
@@ -60,7 +63,7 @@ public class Buildings {
      * object which represent the coordinates of the zone's borders on
      * a map
      */
-    public List<List<LongLat>> getNoFlyCoordinates(){
+    private List<List<LongLat>> getNoFlyCoordinates(){
         if(!fileName.equals("no-fly-zones")){
             System.exit(0);
         }

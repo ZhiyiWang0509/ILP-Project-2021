@@ -51,7 +51,7 @@ public class App
             String webServerPort = args[3];
             String dataBasePort = args[4]; */
 
-            String day = "15";
+            String day = "12";
             String month = "04";
             String year = "2022";
             String date = year + "-" + month + "-" + day;
@@ -62,28 +62,7 @@ public class App
             // parse the flight path into json FeatureCollection
             Drone newDrone = new Drone(date, webServerPort, dataBasePort);
             Result result = newDrone.makeDelivery();
-            List<Point> flightPathPoints = new ArrayList<>();
-            for(LongLat location : result.geoJsonList){
-                flightPathPoints.add(Point.fromLngLat(location.longitude,location.latitude));
-            }
-            LineString lineString = LineString.fromLngLats(flightPathPoints);
-            Feature feature = Feature.fromGeometry(lineString);
-            FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-            // initiate a file writer
-            String fileName = "drone-" + day + "-" + month + "-" + year;
-            try {
-                FileWriter geojsonFile = new FileWriter(fileName);
-                geojsonFile.write(featureCollection.toJson());
-                geojsonFile.close();
-                System.out.println("File write successfully!");
-            } catch (IOException e) {
-                System.err.println("Failed to generate the Geo json file due to error occurs");
-            }
-            // store 'deliveries' and 'flightpath' table in the database
-            Database database = new Database(dataBasePort);
-            database.createDeliveriesDb(result.orderDataBase,webServerPort);
-            database.createFlightPathDb(result.flightPathDataBase);
-
+            result.outputResults(day,month,year,dataBasePort,webServerPort);
             long finishTime = System.nanoTime();
             long duration = finishTime - startTime; // calculate the run time
             double secondDuration = duration/1E9; // converting the run time from nano-second to second

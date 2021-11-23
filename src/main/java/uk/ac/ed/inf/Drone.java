@@ -121,7 +121,7 @@ public class Drone {
      *
      * @return a list of valid orders as Order objects.
      */
-    public List<Order> getValidOrders() {
+    private List<Order> getValidOrders() {
         Database ordersDb = new Database(dataBasePort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
@@ -144,7 +144,7 @@ public class Drone {
      * @param orders this is a list of Order objects to sort.
      * @return a sorted list of Order objects by each order's monetary return in a descending manner.
      */
-    public List<Order> sortOrdersByValue(List<Order> orders) {
+    private List<Order> sortOrdersByValue(List<Order> orders) {
         List<Order> sortedOrders = new ArrayList<>();
         List<Integer> sortedPrice = new ArrayList<>();
         HashMap<Integer, Order> comparator = new HashMap<>();
@@ -239,7 +239,7 @@ public class Drone {
      *
      * @param newLocation the drone's new location
      */
-    public void updateLocation(LongLat newLocation) {
+    private void updateLocation(LongLat newLocation) {
         if (newLocation.isConfined()) {  // the drone must always be in the confined area
             currentLocation = newLocation;
         } else {
@@ -259,7 +259,7 @@ public class Drone {
      * @return a list of paths made by the drone as it travels from its current location to a location that's
      * close to the given location as a list of FlightPath objects.
      */
-    public List<FlightPath> travelTo(String orderNo, LongLat ToLoc) {
+    private List<FlightPath> travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
         while (!currentLocation.closeTo(ToLoc)) {
             int angle = currentLocation.getAngle(ToLoc);
@@ -281,7 +281,7 @@ public class Drone {
      * @param order this is the order to count for the moved needed.
      * @return the number of moves needed to complete the order provided.
      */
-    public int getRouteMovesCount(Order order) {
+    private int getRouteMovesCount(Order order) {
         int moves = 0;
         List<LongLat> routeBuilder = new ArrayList<>();
         routeBuilder.add(currentLocation); // the route start from the drone's current location
@@ -313,7 +313,7 @@ public class Drone {
      * @param location this is the location the drone is travelling from to the Appleton Tower
      * @return the number of moves needed to travel to Appleton Tower from the given LongLat location.
      */
-    public int getMovesToAT(LongLat location) {
+    private int getMovesToAT(LongLat location) {
         int moves = 0;
         List<LongLat> path = new ArrayList<>();
         path.add(location);
@@ -337,7 +337,7 @@ public class Drone {
      * @param finishLoc this is the finishing coordinate of forming the path line segment.
      * @return true if the path formed cross with any of the no-fly-zones borders.
      */
-    public Boolean checkNoFlyZones(LongLat startLoc, LongLat finishLoc) {
+    private Boolean checkNoFlyZones(LongLat startLoc, LongLat finishLoc) {
         Line2D dronePath = new Line2D.Double(startLoc.longitude, startLoc.latitude, finishLoc.longitude, finishLoc.latitude);
         boolean isCrossed = false;
         for (Line2D border : noFlyZones) {
@@ -361,7 +361,7 @@ public class Drone {
      * @param finishLoc this is the finishing coordinate of forming the path line segment.
      * @return the location of the landmark for the drone to travel to as a LongLat object.
      */
-    public LongLat getLandMark(LongLat startLoc, LongLat finishLoc) {
+    private LongLat getLandMark(LongLat startLoc, LongLat finishLoc) {
         HashMap<Double, LongLat> distanceToLMs = new HashMap<>(); // store the distance to each landmark
         ArrayList<Double> distances = new ArrayList<>();
 

@@ -3,8 +3,8 @@ package uk.ac.ed.inf;
 import com.google.gson.Gson;
 
 /**
- * this class acts as a translator of location that's in W3words format to LongLat object
- * which is acceptable by most of the methods defined in other classes.
+ * this class acts as a translator of location from W3words string to LongLat object,
+ * since LongLat is more widely used in other classes.
  * this class would need access to the web server, hence the portal of the webserver needs
  * to be provided when an instance of this class is created.
  *
@@ -27,8 +27,8 @@ public class W3words {
     /**
      * this method would return the LongLat location corresponding to the w3words
      * location provided as the parameter.
-     * this class would create an instance of WebAccess in order to get access to
-     * the web server.
+     * the access to the webserver is achieved by creating an instance of WebAccess class and the
+     * content in the file is obtained by calling the getResponse method on that instance.
      * the parameter would be rephrased to a proper file location where the information
      * related to the w3words location is stored in the WebAccess class.
      *

@@ -7,8 +7,8 @@ import java.util.*;
 
 /**
  * This class would access the menu.json file on the webserver
- * This class contain methods to return necessary information related to the items available
- * to order from the application.
+ * This class contain methods to process and return necessary information related to items sold in each shop,
+ * such as the items' price and shop location.
  *
  */
 
@@ -30,9 +30,12 @@ public class Menus {
     /**
      * this method would access the menu.json file on the webserver and store all the shops
      * as Shop objects in a list and return it.
+     * the access to the webserver is achieved by creating an instance of WebAccess class and the
+     * content in the file is obtained by calling the getResponse method on that instance.
+     *
      * @return an Array list of all the shops available for the delivery service
      */
-    public ArrayList<Shop> getShops(){
+    private ArrayList<Shop> getShops(){
         WebAccess newAccess = new WebAccess(webPort,"menus","menus");  // create an instance of WebAccess class to get the content in menus.json
         Type listType = new TypeToken<ArrayList<Shop>>(){}.getType();
         ArrayList<Shop> shopList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);
@@ -64,7 +67,7 @@ public class Menus {
      * transformed in to LongLat object if necessary.
      * @return a HashMap of (item name, shop location) pair for each item available to order.
      */
-    public HashMap<String, String> getAllItemsLocation() {
+    private HashMap<String, String> getAllItemsLocation() {
         ArrayList<Shop> shopList = getShops();
         HashMap<String, String> allItems = new HashMap<>();
         for (Shop shop : shopList){
