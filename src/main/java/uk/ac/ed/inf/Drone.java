@@ -300,6 +300,7 @@ public class Drone {
                 moves += landmark.getMoves(ToLoc);
             } else {
                 moves += fromLoc.getMoves(ToLoc);
+                moves += 1; // drone needs to hover at shop and deliver location.
             }
         }
         return moves;
