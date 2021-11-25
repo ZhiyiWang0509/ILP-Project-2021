@@ -277,6 +277,7 @@ public class Drone {
      * provided as a parameter.
      * the moves also take into account the detour to landmarks if any path in delivering the order
      * cross the no-fly-zones borders.
+     * when the drone travel to a shop or deliver location, it needs to 'hover' for a move.
      *
      * @param order this is the order to count for the moved needed.
      * @return the number of moves needed to complete the order provided.

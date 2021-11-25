@@ -116,16 +116,16 @@ public class LongLat {
      * if the drone is heading southeast, the angle needs to be subtracted from 350 degree, since the
      * upper limit of the angle is 350 degree.
      *
-     * @param location this is the location the drone is going to travel close to from this location
+     * @param destination this is the location the drone is going to travel close to from this location
      * @return the angle between the given location and this LongLat location as the direction of the
      * drone's flight.
      */
-    public int getAngle(LongLat location){
-        double dY = Math.abs(location.latitude - latitude);
-        double dX = Math.abs(location.longitude - longitude);
-        if(dX == 0 && location.latitude > latitude){
+    public int getAngle(LongLat destination){
+        double dY = Math.abs(destination.latitude - latitude);
+        double dX = Math.abs(destination.longitude - longitude);
+        if(dX == 0 && destination.latitude > latitude){
             return 90;// the drone is heading North
-        }else if(dX == 0 && location.latitude < latitude){
+        }else if(dX == 0 && destination.latitude < latitude){
             return 270;// the drone is heading South
         }
         double arcAngle = Math.atan(dY/dX);
@@ -137,11 +137,11 @@ public class LongLat {
         else{
             degree += (10 - remainder);
         }
-        if(location.longitude>longitude && location.latitude>latitude){
+        if(destination.longitude>longitude && destination.latitude>latitude){
             return degree;// the drone is flying northeast
-        }else if(location.longitude<longitude && location.latitude>latitude){
+        }else if(destination.longitude<longitude && destination.latitude>latitude){
             return (180-degree);// the drone is flying northwest
-        }else if(location.longitude<longitude && location.latitude<latitude){
+        }else if(destination.longitude<longitude && destination.latitude<latitude){
             return (180+degree);// the drone is flying southwest
         }else{
             return (350-degree); // the drone is flying southeast
