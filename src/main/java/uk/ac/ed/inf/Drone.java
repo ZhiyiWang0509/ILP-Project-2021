@@ -233,6 +233,8 @@ public class Drone {
                     // this is to check if the path to the shop cross the non-fly zone
                     if (checkNoFlyZones(currentLocation, shopLngLat)) {
                         LongLat landmark = getLandMark(currentLocation, shopLngLat);
+                        // an instance of Map class has to be made to store the value from travelTo
+                        // then the two lists are added to flightPath and flightCoordinates respectively.
                         Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
                         flightPaths.addAll(travelToResults.get(0));
                         flightCoordinates.addAll(travelToResults.get(1));
@@ -310,18 +312,21 @@ public class Drone {
     /**
      * this method would make the drone travel to a location that is close to the given LongLat location
      * by taking a move in the direction between the given location and the current location.
-     * after taking a move, the flight path is recorded and the move count need to be reduced by 1 unit.
+     * after taking a move, the flight path is recorded as well as the updated current location
+     * the move count need to be reduced by 1 unit after taking a move.
      *
      * @param orderNo this is the order number of the order the drone is delivering on this path
      * @param ToLoc   this is the location the drone is heading to
-     * @return a list of paths made by the drone as it travels from its current location to a location that's
-     * close to the given location as a list of FlightPath objects.
+     * @return a map contain both the list of flight paths made by the drone and the list of coordinates visited
+     * as it travels from its current location to a location that's close to the given location as a list of
+     * FlightPath objects and a list of LongLat objects respectively. T
+     * The first element in the map is the list of flightpath and the second is the list of coordinates.
+     *
      */
     private Map<Integer, List> travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
         List<LongLat> coordinates = new ArrayList<>();
         Map<Integer, List> map = new HashMap<>();
-       // coordinates.add(currentLocation);
         while (!currentLocation.closeTo(ToLoc)) {
             int angle = currentLocation.getAngle(ToLoc);
             LongLat nextLocation = currentLocation.nextPosition(angle);
