@@ -235,13 +235,13 @@ public class Drone {
                         LongLat landmark = getLandMark(currentLocation, shopLngLat);
                         // an instance of Map class has to be made to store the value from travelTo
                         // then the two lists are added to flightPath and flightCoordinates respectively.
-                        Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
-                        flightPaths.addAll(travelToResults.get(0));
-                        flightCoordinates.addAll(travelToResults.get(1));
+                        Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
+                        flightPaths.addAll(travelToResults.getValue0());
+                        flightCoordinates.addAll(travelToResults.getValue1());
                     }
-                    Map<Integer, List> travelToResults = travelTo(orderNo, shopLngLat);
-                    flightPaths.addAll(travelToResults.get(0));
-                    flightCoordinates.addAll(travelToResults.get(1));
+                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, shopLngLat);
+                    flightPaths.addAll(travelToResults.getValue0());
+                    flightCoordinates.addAll(travelToResults.getValue1());
                     shops.remove(shop);
                     // the drone hovers for 1 move wh it reaches shop
                     MOVE_LEFT -= 1;
@@ -249,14 +249,14 @@ public class Drone {
                 // this is to check if the path to the delivery spot cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, deliverTo)) {
                     LongLat landmark = getLandMark(currentLocation, deliverTo);
-                    Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
-                    flightPaths.addAll(travelToResults.get(0));
-                    flightCoordinates.addAll(travelToResults.get(1));
+                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
+                    flightPaths.addAll(travelToResults.getValue0());
+                    flightCoordinates.addAll(travelToResults.getValue1());
                 }
                 // at this point, an order is made
-                Map<Integer, List> travelToResults = travelTo(orderNo, deliverTo);
-                flightPaths.addAll(travelToResults.get(0));
-                flightCoordinates.addAll(travelToResults.get(1));
+                Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, deliverTo);
+                flightPaths.addAll(travelToResults.getValue0());
+                flightCoordinates.addAll(travelToResults.getValue1());
                 orderMadeList.add(order);
                 validOrders.remove(order);
                 MOVE_LEFT -= 1;
@@ -266,27 +266,27 @@ public class Drone {
                 // this is to check if the path to Appleton Tower cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
                     LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                    Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
-                    flightPaths.addAll(travelToResults.get(0));
-                    flightCoordinates.addAll(travelToResults.get(1));
+                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
+                    flightPaths.addAll(travelToResults.getValue0());
+                    flightCoordinates.addAll(travelToResults.getValue1());
                 }
-                Map<Integer, List> travelToResults = travelTo(orderNo, APPLETON_TOWER);
-                flightPaths.addAll(travelToResults.get(0));
-                flightCoordinates.addAll(travelToResults.get(1));
+                Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, APPLETON_TOWER);
+                flightPaths.addAll(travelToResults.getValue0());
+                flightCoordinates.addAll(travelToResults.getValue1());
                 break;
             }
         }
         // this is to check if the path to Appleton Tower cross the non-fly zone
         if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
             LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-            Map<Integer, List> travelToResults = travelTo(lastOrder.orderNO, landmark);
-            flightPaths.addAll(travelToResults.get(0));;
-            flightCoordinates.addAll(travelToResults.get(1));
+            Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(lastOrder.orderNO, landmark);
+            flightPaths.addAll(travelToResults.getValue0());
+            flightCoordinates.addAll(travelToResults.getValue1());
         }
         // at this point, the drone has finished all the orders and returned to the Appleton Tower
-        Map<Integer, List> travelToResults = travelTo(lastOrder.orderNO, APPLETON_TOWER);
-        flightPaths.addAll(travelToResults.get(0));
-        flightCoordinates.addAll(travelToResults.get(1));
+        Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(lastOrder.orderNO, APPLETON_TOWER);
+        flightPaths.addAll(travelToResults.getValue0());
+        flightCoordinates.addAll(travelToResults.getValue1());
         return new Result(flightCoordinates, orderMadeList, flightPaths);
     }
 
@@ -317,30 +317,29 @@ public class Drone {
      *
      * @param orderNo this is the order number of the order the drone is delivering on this path
      * @param ToLoc   this is the location the drone is heading to
-     * @return a map contain both the list of flight paths made by the drone and the list of coordinates visited
+     * @return a pair contain both the list of flight paths made by the drone and the list of coordinates visited
      * as it travels from its current location to a location that's close to the given location as a list of
-     * FlightPath objects and a list of LongLat objects respectively. T
-     * The first element in the map is the list of flightpath and the second is the list of coordinates.
+     * FlightPath objects and a list of LongLat objects respectively.
+     * The first element in the pair is the list of flightpath and the second is the list of coordinates.
      *
      */
-    private Map<Integer, List> travelTo(String orderNo, LongLat ToLoc) {
+    private Pair<List<FlightPath>, List<LongLat>> travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
         List<LongLat> coordinates = new ArrayList<>();
-        Map<Integer, List> map = new HashMap<>();
         while (!currentLocation.closeTo(ToLoc)) {
             int angle = currentLocation.getAngle(ToLoc);
             LongLat nextLocation = currentLocation.nextPosition(angle);
             FlightPath flightPath = new FlightPath(orderNo, currentLocation.longitude, currentLocation.latitude, angle,
-                                                    nextLocation.longitude, nextLocation.latitude);
+                    nextLocation.longitude, nextLocation.latitude);
             flightPaths.add(flightPath);
             updateLocation(nextLocation);
             coordinates.add(currentLocation);
             MOVE_LEFT -= 1;
         }
-        map.put(0,flightPaths);
-        map.put(1, coordinates);
-        return map;
+        return new Pair<>(flightPaths,coordinates);
     }
+
+
 
     /**
      * this method would calculate the number of moves required for the drone to complete the order
@@ -466,6 +465,7 @@ public class Drone {
     // delete this main before submit!!
     public static void main(String[] args) {
         Drone testBot = new Drone("2022-04-15", "9898", "9876");
+        W3words w3words = new W3words("9898");
         LongLat from = new LongLat(-3.191257, 55.945626);
         LongLat to = new LongLat(-3.188512, 55.944036);
         LongLat testLM = testBot.getLandMark(to, from);
@@ -474,7 +474,9 @@ public class Drone {
 
         List<Order> orderList = testBot.getValidOrders();
         Order order = orderList.get(1);
-        testBot.getNextOrder(orderList);
+        Pair<List<FlightPath>, List<LongLat>> pair = testBot.travelTo(order.orderNO, w3words.toLongLat(order.deliverTo));
+        System.out.println(pair.getValue0());
+        System.out.println(pair.getValue1());
     }
 
 
