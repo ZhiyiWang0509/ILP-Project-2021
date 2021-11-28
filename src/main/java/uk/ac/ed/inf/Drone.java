@@ -1,5 +1,8 @@
 package uk.ac.ed.inf;
 
+import org.javatuples.Pair;
+import org.javatuples.Tuple;
+
 import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.*;
@@ -230,11 +233,13 @@ public class Drone {
                     // this is to check if the path to the shop cross the non-fly zone
                     if (checkNoFlyZones(currentLocation, shopLngLat)) {
                         LongLat landmark = getLandMark(currentLocation, shopLngLat);
-                        flightPaths.addAll(travelTo(orderNo, landmark));
-                        flightCoordinates.add(currentLocation);
+                        Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
+                        flightPaths.addAll(travelToResults.get(0));
+                        flightCoordinates.addAll(travelToResults.get(1));
                     }
-                    flightPaths.addAll(travelTo(orderNo, shopLngLat));
-                    flightCoordinates.add(currentLocation);
+                    Map<Integer, List> travelToResults = travelTo(orderNo, shopLngLat);
+                    flightPaths.addAll(travelToResults.get(0));
+                    flightCoordinates.addAll(travelToResults.get(1));
                     shops.remove(shop);
                     // the drone hovers for 1 move wh it reaches shop
                     MOVE_LEFT -= 1;
@@ -242,12 +247,14 @@ public class Drone {
                 // this is to check if the path to the delivery spot cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, deliverTo)) {
                     LongLat landmark = getLandMark(currentLocation, deliverTo);
-                    flightPaths.addAll(travelTo(orderNo, landmark));
-                    flightCoordinates.add(currentLocation);
+                    Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
+                    flightPaths.addAll(travelToResults.get(0));
+                    flightCoordinates.addAll(travelToResults.get(1));
                 }
                 // at this point, an order is made
-                flightPaths.addAll(travelTo(orderNo, deliverTo));
-                flightCoordinates.add(currentLocation);
+                Map<Integer, List> travelToResults = travelTo(orderNo, deliverTo);
+                flightPaths.addAll(travelToResults.get(0));
+                flightCoordinates.addAll(travelToResults.get(1));
                 orderMadeList.add(order);
                 validOrders.remove(order);
                 MOVE_LEFT -= 1;
@@ -257,23 +264,27 @@ public class Drone {
                 // this is to check if the path to Appleton Tower cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
                     LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                    flightPaths.addAll(travelTo(orderNo, landmark));
-                    flightCoordinates.add(currentLocation);
+                    Map<Integer, List> travelToResults = travelTo(orderNo, landmark);
+                    flightPaths.addAll(travelToResults.get(0));
+                    flightCoordinates.addAll(travelToResults.get(1));
                 }
-                flightPaths.addAll(travelTo(orderNo, APPLETON_TOWER));
-                flightCoordinates.add(currentLocation);
+                Map<Integer, List> travelToResults = travelTo(orderNo, APPLETON_TOWER);
+                flightPaths.addAll(travelToResults.get(0));
+                flightCoordinates.addAll(travelToResults.get(1));
                 break;
             }
         }
         // this is to check if the path to Appleton Tower cross the non-fly zone
         if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
             LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-            flightPaths.addAll(travelTo(lastOrder.orderNO, landmark));
-            flightCoordinates.add(currentLocation);
+            Map<Integer, List> travelToResults = travelTo(lastOrder.orderNO, landmark);
+            flightPaths.addAll(travelToResults.get(0));;
+            flightCoordinates.addAll(travelToResults.get(1));
         }
         // at this point, the drone has finished all the orders and returned to the Appleton Tower
-        flightPaths.addAll(travelTo(lastOrder.orderNO, APPLETON_TOWER));
-        flightCoordinates.add(currentLocation);
+        Map<Integer, List> travelToResults = travelTo(lastOrder.orderNO, APPLETON_TOWER);
+        flightPaths.addAll(travelToResults.get(0));
+        flightCoordinates.addAll(travelToResults.get(1));
         return new Result(flightCoordinates, orderMadeList, flightPaths);
     }
 
@@ -306,8 +317,11 @@ public class Drone {
      * @return a list of paths made by the drone as it travels from its current location to a location that's
      * close to the given location as a list of FlightPath objects.
      */
-    private List<FlightPath> travelTo(String orderNo, LongLat ToLoc) {
+    private Map<Integer, List> travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
+        List<LongLat> coordinates = new ArrayList<>();
+        Map<Integer, List> map = new HashMap<>();
+       // coordinates.add(currentLocation);
         while (!currentLocation.closeTo(ToLoc)) {
             int angle = currentLocation.getAngle(ToLoc);
             LongLat nextLocation = currentLocation.nextPosition(angle);
@@ -315,9 +329,12 @@ public class Drone {
                                                     nextLocation.longitude, nextLocation.latitude);
             flightPaths.add(flightPath);
             updateLocation(nextLocation);
+            coordinates.add(currentLocation);
             MOVE_LEFT -= 1;
         }
-        return flightPaths;
+        map.put(0,flightPaths);
+        map.put(1, coordinates);
+        return map;
     }
 
     /**

@@ -41,8 +41,8 @@ public class App
             String webServerPort = args[3];
             String dataBasePort = args[4]; */
 
-            String day = "07";
-            String month = "07";
+            String day = "12";
+            String month = "12";
             String year = "2022";
             String date = year + "-" + month + "-" + day;
             String webServerPort = "9898";
