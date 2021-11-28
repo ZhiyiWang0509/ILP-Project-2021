@@ -6,7 +6,7 @@ package uk.ac.ed.inf;
  * fields name in this class match exactly to the attribute names in the json file.
  *
  */
-public class Location {
+public class W3wordDetails {
     /**
      * this is the country of the location located in
      */

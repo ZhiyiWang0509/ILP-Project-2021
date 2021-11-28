@@ -112,8 +112,8 @@ public class WebAccess {
             try {
                 response = client.send(request, BodyHandlers.ofString());
             } catch (IOException | InterruptedException e) {
-                System.err.println("Issue connectinf to webserver");
-                System.exit(0);  // exit the system when there's connection issue with the web server
+                System.err.println("Issue connecting to webserver");
+                System.exit(1);  // exit the system when there's connection issue with the web server
             }
         }
         assert response != null;

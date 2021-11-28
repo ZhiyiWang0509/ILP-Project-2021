@@ -36,7 +36,8 @@ public class Menus {
      * @return an Array list of all the shops available for the delivery service
      */
     private ArrayList<Shop> getShops(){
-        WebAccess newAccess = new WebAccess(webPort,"menus","menus");  // create an instance of WebAccess class to get the content in menus.json
+        // create an instance of WebAccess class to get the content in menus.json
+        WebAccess newAccess = new WebAccess(webPort,"menus","menus");
         Type listType = new TypeToken<ArrayList<Shop>>(){}.getType();
         ArrayList<Shop> shopList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);
         return shopList;
@@ -53,8 +54,9 @@ public class Menus {
         ArrayList<Shop> shopList = getShops();
         HashMap<String, Integer> allItems = new HashMap<>();
         for (Shop shop : shopList){
-            HashMap<String, Integer> localItems = shop.getItemsPrice(); // get a HashMap of (item name, item price) pairs for this shop
-            allItems.putAll(localItems);  // combine information for each shop
+            HashMap<String, Integer> localItems = shop.getItemsPrice();
+            // combine information for each shop
+            allItems.putAll(localItems);
         }
         return allItems;
     }
@@ -71,8 +73,9 @@ public class Menus {
         ArrayList<Shop> shopList = getShops();
         HashMap<String, String> allItems = new HashMap<>();
         for (Shop shop : shopList){
-            HashMap<String, String> localItems = shop.getShopLocation(); // get a HashMap of (item name, restaurant name) pairs for this shop
-            allItems.putAll(localItems);  // combine information for each shop
+            HashMap<String, String> localItems = shop.getShopLocation();
+            // combine information for each shop
+            allItems.putAll(localItems);
         }
         return allItems;
     }

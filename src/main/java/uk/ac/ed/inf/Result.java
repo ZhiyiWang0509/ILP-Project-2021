@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Result contains all the information needed as the output for
- * this application.
+ * A Result contains all the information needed as the output for this application.
  *
  */
 public class Result {
@@ -76,6 +75,7 @@ public class Result {
             System.out.println("File write successfully!");
         } catch (IOException e) {
             System.err.println("Failed to generate the Geo json file due to error occurs");
+            System.exit(1);
         }
         // store 'deliveries' and 'flightpath' table in the database
         Database database = new Database(dataBasePort);

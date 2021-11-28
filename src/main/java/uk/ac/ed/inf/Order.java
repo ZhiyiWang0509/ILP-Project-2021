@@ -73,19 +73,19 @@ public class Order {
      * to travel to a shop multiple times even if there are multiple items from the same shop in
      * the order
      */
-    public Set<String> getOrderShops(String webPort){
+    public List<String> getOrderShops(String webPort){
         Menus menus = new Menus(webPort);
         Set<String> shopLocations = new HashSet<>();
         for(String item : itemList){
             try{
-                String location = menus.getItemShop(item);  // need to catch NullPointerException if the item isn't found?
+                String location = menus.getItemShop(item);
                 shopLocations.add(location);
             } catch (NullPointerException e){
                 System.err.println("Item is not found in the menu");
-                System.exit(0);
+                System.exit(1);
             }
         }
-        return shopLocations;
+        return new ArrayList<>(shopLocations);
     }
 
 }

@@ -148,6 +148,7 @@ public class Database {
             conn.close();
         } catch (SQLException e) {
             System.err.println("The connection failed in deliveries table");
+            System.exit(1);
         }
     }
 
@@ -198,6 +199,7 @@ public class Database {
             conn.close(); //shutdown the database
         } catch (SQLException e) {
             System.err.println("The connection failed in flightpath table");
+            System.exit(1);
         }
     }
 

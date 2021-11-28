@@ -1,16 +1,6 @@
 package uk.ac.ed.inf;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.mapbox.geojson.*;
-import com.mapbox.geojson.Point;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-
 /**
  * this is the class where the arguments from commend line are taken in
  * the first argument of the input is the day of the delivery date
@@ -51,13 +41,14 @@ public class App
             String webServerPort = args[3];
             String dataBasePort = args[4]; */
 
-            String day = "12";
-            String month = "04";
+            String day = "07";
+            String month = "07";
             String year = "2022";
             String date = year + "-" + month + "-" + day;
             String webServerPort = "9898";
             String dataBasePort = "9876";
 
+            // comment out these sections after the runtime results are out
             long startTime = System.nanoTime(); // time the application
             // parse the flight path into json FeatureCollection
             Drone newDrone = new Drone(date, webServerPort, dataBasePort);
@@ -67,8 +58,8 @@ public class App
             long duration = finishTime - startTime; // calculate the run time
             double secondDuration = duration/1E9; // converting the run time from nano-second to second
             System.out.println("The time taken to generate the path is: " + secondDuration + " second");
-        }catch(ArrayIndexOutOfBoundsException e){
-            System.err.println("Invalid input");
+        }catch(Exception e){
+            e.printStackTrace();
             System.exit(1);
         }
 

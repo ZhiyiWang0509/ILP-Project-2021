@@ -37,8 +37,8 @@ public class W3words {
      */
     public LongLat toLongLat(String w3wLocation){
         WebAccess newWords = new WebAccess(webPort, "words", w3wLocation);
-        Location newLocation = new Gson().fromJson(String.valueOf(newWords.getResponse()),Location.class);
-        return newLocation.getLocation();
+        W3wordDetails newW3wordDetails = new Gson().fromJson(String.valueOf(newWords.getResponse()), W3wordDetails.class);
+        return newW3wordDetails.getLocation();
     }
 
 
