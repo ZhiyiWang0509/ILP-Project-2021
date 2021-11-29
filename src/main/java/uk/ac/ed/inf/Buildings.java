@@ -65,13 +65,14 @@ public class Buildings {
      */
     private List<List<LongLat>> getNoFlyCoordinates(){
         if(!fileName.equals("no-fly-zones")){
-            System.exit(0);
+            System.exit(1);
         }
         List<Feature> features = getFeatures();
         List<List<LongLat>> coordinates = new ArrayList<>();
         for(Feature fc : features) {
             assert fc.geometry() != null;
-            Polygon polygon = Polygon.fromJson(fc.geometry().toJson()); // cast the feature to polygon object
+            // cast the feature to polygon object
+            Polygon polygon = Polygon.fromJson(fc.geometry().toJson());
             List<LongLat> localPoints = new ArrayList<>();
             for(Point point : polygon.coordinates().get(0)){
                 LongLat newLoc = new LongLat(point.longitude(), point.latitude());
@@ -102,8 +103,10 @@ public class Buildings {
                 Line2D border = new Line2D.Double(noFlyBorder1.longitude, noFlyBorder1.latitude, noFlyBorder2.longitude, noFlyBorder2.latitude);
                 borders.add(border);
             }
-            LongLat head = area.get(0); // the first coordinate
-            LongLat tail = area.get(area.size()-1); // the last coordinate
+            // the first coordinate
+            LongLat head = area.get(0);
+            // the last coordinate
+            LongLat tail = area.get(area.size()-1);
             Line2D lastBorder = new Line2D.Double(head.longitude, head.latitude, tail.longitude, tail.latitude);
             borders.add(lastBorder);
         }
@@ -119,7 +122,7 @@ public class Buildings {
      */
     public List<LongLat> getLandMarks(){
         if(!fileName.equals("landmarks")){
-            System.exit(0);
+            System.exit(1);
         }
         List<Feature> features = getFeatures();
         List<LongLat> coordinates = new ArrayList<>();

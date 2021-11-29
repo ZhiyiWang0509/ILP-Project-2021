@@ -49,17 +49,17 @@ public class Order {
      */
     public int getOrderCost(String webPort){
         Menus menus = new Menus(webPort);
-        HashMap<String, Integer> itemsPrice = menus.getAllItemsPrice();
-        int price = 0;
+        HashMap<String, Integer> itemsPriceMap = menus.getAllItemsPrice();
+        int PRICE = 0;
         try{
             for(String item : itemList){
-                price += itemsPrice.get(item);
+                PRICE += itemsPriceMap.get(item);
             }
         } catch(NullPointerException e){
             System.err.println("The item isn't found in the menu.");
         }
         int DELIVERY_COST = 50;
-        return price + DELIVERY_COST;
+        return PRICE + DELIVERY_COST;
     }
 
     /**
@@ -75,10 +75,11 @@ public class Order {
      */
     public List<String> getOrderShops(String webPort){
         Menus menus = new Menus(webPort);
+        HashMap<String, String> itemsLocationMap = menus.getAllItemsLocation();
         Set<String> shopLocations = new HashSet<>();
         for(String item : itemList){
             try{
-                String location = menus.getItemShop(item);
+                String location = itemsLocationMap.get(item);
                 shopLocations.add(location);
             } catch (NullPointerException e){
                 System.err.println("Item is not found in the menu");

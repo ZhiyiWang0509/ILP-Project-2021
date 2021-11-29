@@ -1,11 +1,20 @@
 package uk.ac.ed.inf;
 
 import org.javatuples.Pair;
-import org.javatuples.Tuple;
 
 import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.*;
+
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * this class is used to define the characteristics and movements made by a drone.
@@ -63,9 +72,17 @@ import java.util.*;
  */
 public class Drone {
     /**
-     * this the date of making the delivery
+     * this is the year of the date the deliveries are made
      */
-    public String date;
+    public String year;
+    /**
+     * this is the month of the date the deliveries are made
+     */
+    public String month;
+    /**
+     * this is the day of the date the deliveries are made
+     */
+    public String day;
     /**
      * this is the portal of the webserver to access
      */
@@ -98,16 +115,39 @@ public class Drone {
      * the value is passed when an instance is created
      */
     private final List<LongLat> landmarks;
+    /**
+     * this the date of making the delivery
+     */
+    private final String date;
+    /**
+     * this field store a list of LongLat object
+     * this would be parsed in to GeoJson file in the application
+     */
+    private static final List<LongLat> geoJsonList = new ArrayList<>();
+    /**
+     * this field store a list of Order object
+     * this would be stored in to the 'deliveries' database created in the application
+     */
+    private static final List<Order> orderDataBase = new ArrayList<>();
+    /**
+     * this field store a list of FlightPath object
+     * this would be stored in to the 'filghtpath' database created in the application
+     */
+    private static final List<FlightPath> flightPathDataBase = new ArrayList<>();
 
     /**
      * this is the constructor of the Drone class
      *
-     * @param date          this is the date of making deliveries
+     * @param day           this is the day of making the deliveries
+     * @param month         this is the month of making the deliveries
+     * @param year          this is the year of making deliveries
      * @param webServerPort this is the portal number of the webserver
      * @param dataBasePort  this is the portal number of the database
      */
-    public Drone(String date, String webServerPort, String dataBasePort) {
-        this.date = date;
+    public Drone(String day, String month,String year,String webServerPort, String dataBasePort) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
         this.webServerPort = webServerPort;
         this.dataBasePort = dataBasePort;
 
@@ -117,6 +157,8 @@ public class Drone {
         //this is the file name of the 'landmarks.geojson' file without file extension.
         String LANDMARKS = "landmarks";
         this.landmarks = new Buildings(webServerPort, LANDMARKS).getLandMarks();
+        // this is the date of making the deliveries
+        this.date = year + "-" + month + "-" + day;
     }
 
     /**
@@ -197,25 +239,18 @@ public class Drone {
      * if the drone would cross no-fly-zones borders, it would need to travel to the nearest appropriate landmark
      * to avoid no-fly-area.
      * once the drone is close to any shop or deliverTo location it needs to hover for a move.
-     * it would record the orders actually made, the flightpath took and the coordinates visited.
+     * it would update the orders actually made, the flightpath took and the coordinates visited in the fields:
+     * orderDatabase, flightPathDatabase and geoJsonList respectively.
      *
-     * @return a Result object representing the outcome of making the day's delivery.
      */
-    public Result makeDelivery() {
+    public void makeDelivery() {
         W3words w3words = new W3words(webServerPort);
-        // this is the list to store the coordinates visited by the drone
-        List<LongLat> flightCoordinates = new ArrayList<>();
-        // this is the list to store all the orders made
-        List<Order> orderMadeList = new ArrayList<>();
-        // this is the list to store all the flight path took
-        List<FlightPath> flightPaths = new ArrayList<>();
-
         List<Order> validOrders = getValidOrders();
         // use the order number of the last order as the orderNo for drone's return to the Appleton
         int LAST_ORDER_INDEX = validOrders.size() - 1;
         Order lastOrder = validOrders.get(LAST_ORDER_INDEX);
 
-        flightCoordinates.add(currentLocation);
+        geoJsonList.add(currentLocation);
         while(!validOrders.isEmpty()){
             Order order = getNextOrder(validOrders);
             LongLat deliverTo = w3words.toLongLat(order.deliverTo);
@@ -233,15 +268,9 @@ public class Drone {
                     // this is to check if the path to the shop cross the non-fly zone
                     if (checkNoFlyZones(currentLocation, shopLngLat)) {
                         LongLat landmark = getLandMark(currentLocation, shopLngLat);
-                        // an instance of Map class has to be made to store the value from travelTo
-                        // then the two lists are added to flightPath and flightCoordinates respectively.
-                        Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
-                        flightPaths.addAll(travelToResults.getValue0());
-                        flightCoordinates.addAll(travelToResults.getValue1());
+                        travelTo(orderNo, landmark);
                     }
-                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, shopLngLat);
-                    flightPaths.addAll(travelToResults.getValue0());
-                    flightCoordinates.addAll(travelToResults.getValue1());
+                    travelTo(orderNo,shopLngLat);
                     shops.remove(shop);
                     // the drone hovers for 1 move wh it reaches shop
                     MOVE_LEFT -= 1;
@@ -249,15 +278,11 @@ public class Drone {
                 // this is to check if the path to the delivery spot cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, deliverTo)) {
                     LongLat landmark = getLandMark(currentLocation, deliverTo);
-                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
-                    flightPaths.addAll(travelToResults.getValue0());
-                    flightCoordinates.addAll(travelToResults.getValue1());
+                    travelTo(orderNo,landmark);
                 }
                 // at this point, an order is made
-                Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, deliverTo);
-                flightPaths.addAll(travelToResults.getValue0());
-                flightCoordinates.addAll(travelToResults.getValue1());
-                orderMadeList.add(order);
+                travelTo(orderNo,deliverTo);
+                orderDataBase.add(order);
                 validOrders.remove(order);
                 MOVE_LEFT -= 1;
             }
@@ -266,30 +291,57 @@ public class Drone {
                 // this is to check if the path to Appleton Tower cross the non-fly zone
                 if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
                     LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                    Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, landmark);
-                    flightPaths.addAll(travelToResults.getValue0());
-                    flightCoordinates.addAll(travelToResults.getValue1());
+                    travelTo(orderNo,landmark);
                 }
-                Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(orderNo, APPLETON_TOWER);
-                flightPaths.addAll(travelToResults.getValue0());
-                flightCoordinates.addAll(travelToResults.getValue1());
+                travelTo(orderNo,APPLETON_TOWER);
                 break;
             }
         }
         // this is to check if the path to Appleton Tower cross the non-fly zone
         if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
             LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-            Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(lastOrder.orderNO, landmark);
-            flightPaths.addAll(travelToResults.getValue0());
-            flightCoordinates.addAll(travelToResults.getValue1());
+            travelTo(lastOrder.orderNO, landmark);
         }
         // at this point, the drone has finished all the orders and returned to the Appleton Tower
-        Pair<List<FlightPath>, List<LongLat>> travelToResults = travelTo(lastOrder.orderNO, APPLETON_TOWER);
-        flightPaths.addAll(travelToResults.getValue0());
-        flightCoordinates.addAll(travelToResults.getValue1());
-        return new Result(flightCoordinates, orderMadeList, flightPaths);
+        travelTo(lastOrder.orderNO, APPLETON_TOWER);
     }
 
+    /**
+     * this method would export the results obtained from makeDelivery(),
+     * it would export a geojson file for the drone's flight path and write two tables
+     * in the database, one called "deliveries" the other called "flightpath"
+     */
+    public void outPutResult(){
+        try{
+            List<Point> flightPathPoints = new ArrayList<>();
+            for(LongLat location : geoJsonList){
+                flightPathPoints.add(Point.fromLngLat(location.longitude,location.latitude));
+            }
+            LineString lineString = LineString.fromLngLats(flightPathPoints);
+            Feature feature = Feature.fromGeometry(lineString);
+            FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
+            // initiate a file writer
+            String fileName = "drone-" + day + "-" + month + "-" + year;
+            try {
+                FileWriter geojsonFile = new FileWriter(fileName);
+                geojsonFile.write(featureCollection.toJson());
+                geojsonFile.close();
+                System.out.println("File write successfully!");
+            } catch (IOException e) {
+                System.err.println("Failed to generate the Geo json file");
+                System.exit(1);
+            }
+            // store 'deliveries' and 'flightpath' table in the database
+            Database database = new Database(dataBasePort);
+            database.createDeliveriesDb(orderDataBase,webServerPort);
+            database.createFlightPathDb(flightPathDataBase);
+
+        }catch (NullPointerException e){
+            System.err.println("method: makeDelivery, has to be called first");
+            System.exit(1);
+        }
+
+    }
     /**
      * this method would renew the drone's current location with the given new location
      * this method would also check if the drone's new location is within the confined area
@@ -308,22 +360,18 @@ public class Drone {
         }
 
     }
-
     /**
      * this method would make the drone travel to a location that is close to the given LongLat location
      * by taking a move in the direction between the given location and the current location.
      * after taking a move, the flight path is recorded as well as the updated current location
-     * the move count need to be reduced by 1 unit after taking a move.
+     * the move count need to be reduced by 1 unit after taking a move
+     * after the drone is close to the destination, the local fields store the coordinates visited and flightpath made
+     * will be updated.
      *
      * @param orderNo this is the order number of the order the drone is delivering on this path
-     * @param ToLoc   this is the location the drone is heading to
-     * @return a pair contain both the list of flight paths made by the drone and the list of coordinates visited
-     * as it travels from its current location to a location that's close to the given location as a list of
-     * FlightPath objects and a list of LongLat objects respectively.
-     * The first element in the pair is the list of flightpath and the second is the list of coordinates.
-     *
+     * @param ToLoc this is the location the drone is heading to
      */
-    private Pair<List<FlightPath>, List<LongLat>> travelTo(String orderNo, LongLat ToLoc) {
+    private void travelTo(String orderNo, LongLat ToLoc) {
         List<FlightPath> flightPaths = new ArrayList<>();
         List<LongLat> coordinates = new ArrayList<>();
         while (!currentLocation.closeTo(ToLoc)) {
@@ -336,10 +384,9 @@ public class Drone {
             coordinates.add(currentLocation);
             MOVE_LEFT -= 1;
         }
-        return new Pair<>(flightPaths,coordinates);
+        geoJsonList.addAll(coordinates);
+        flightPathDataBase.addAll(flightPaths);
     }
-
-
 
     /**
      * this method would calculate the number of moves required for the drone to complete the order
@@ -354,7 +401,8 @@ public class Drone {
     public int getRouteMovesCount(Order order) {
         int moves = 0;
         List<LongLat> routeBuilder = new ArrayList<>();
-        routeBuilder.add(currentLocation); // the route start from the drone's current location
+        // the route start from the drone's current location
+        routeBuilder.add(currentLocation);
         W3words w3words = new W3words(webServerPort);
         for (String shop : order.getOrderShops(webServerPort)) {
             routeBuilder.add(w3words.toLongLat(shop));
@@ -463,8 +511,8 @@ public class Drone {
     }
 
     // delete this main before submit!!
-    public static void main(String[] args) {
-        Drone testBot = new Drone("2022-04-15", "9898", "9876");
+    /*public static void main(String[] args) {
+        //Drone testBot = new Drone("2022-04-15", "9898", "9876");
         W3words w3words = new W3words("9898");
         LongLat from = new LongLat(-3.191257, 55.945626);
         LongLat to = new LongLat(-3.188512, 55.944036);
@@ -474,10 +522,10 @@ public class Drone {
 
         List<Order> orderList = testBot.getValidOrders();
         Order order = orderList.get(1);
-        Pair<List<FlightPath>, List<LongLat>> pair = testBot.travelTo(order.orderNO, w3words.toLongLat(order.deliverTo));
+       // Pair<List<FlightPath>, List<LongLat>> pair = testBot.travelTo(order.orderNO, w3words.toLongLat(order.deliverTo));
         System.out.println(pair.getValue0());
         System.out.println(pair.getValue1());
-    }
+    } */
 
 
 }

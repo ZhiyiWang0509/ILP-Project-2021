@@ -49,11 +49,11 @@ public class Shop {
      * items' prices
      */
     public HashMap<String, Integer> getItemsPrice(){
-        HashMap<String, Integer> itemList = new HashMap<>();
+        HashMap<String, Integer> itemPriceMap = new HashMap<>();
         for (MenuDetails singleItem : menu) {
-            itemList.put(singleItem.item, singleItem.pence);
+            itemPriceMap.put(singleItem.item, singleItem.pence);
         }
-        return itemList;
+        return itemPriceMap;
     }
 
     /**
@@ -64,11 +64,11 @@ public class Shop {
      * @return a hashmap of item names corresponding to the shop location
      */
     public HashMap<String, String> getShopLocation(){
-        HashMap<String, String> itemList = new HashMap<>();
+        HashMap<String, String> itemLocationMap = new HashMap<>();
         for (MenuDetails singleItem : menu) {
-            itemList.put(singleItem.item, location);
+            itemLocationMap.put(singleItem.item, location);
         }
-        return itemList;
+        return itemLocationMap;
     }
 
 

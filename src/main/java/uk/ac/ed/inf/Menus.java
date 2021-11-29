@@ -39,8 +39,7 @@ public class Menus {
         // create an instance of WebAccess class to get the content in menus.json
         WebAccess newAccess = new WebAccess(webPort,"menus","menus");
         Type listType = new TypeToken<ArrayList<Shop>>(){}.getType();
-        ArrayList<Shop> shopList = new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);
-        return shopList;
+        return new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);
     }
 
     /**
@@ -69,7 +68,7 @@ public class Menus {
      * transformed in to LongLat object if necessary.
      * @return a HashMap of (item name, shop location) pair for each item available to order.
      */
-    private HashMap<String, String> getAllItemsLocation() {
+    public HashMap<String, String> getAllItemsLocation() {
         ArrayList<Shop> shopList = getShops();
         HashMap<String, String> allItems = new HashMap<>();
         for (Shop shop : shopList){
@@ -80,17 +79,6 @@ public class Menus {
         return allItems;
     }
 
-    /**
-     * this method return the shop location of the item belongs to
-     * the location returned is in W3words format, hence needs to
-     * be transformed into LongLat object if necessary
-     * @param item this parameter is the name of the item
-     * @return the shop location of which the item belongs to in w3word format.
-     */
-    public String getItemShop(String item){
-        HashMap<String, String> itemRestaurants = getAllItemsLocation();
-        return itemRestaurants.get(item);
-    }
 
 
 

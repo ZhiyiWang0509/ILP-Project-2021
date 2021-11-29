@@ -42,10 +42,14 @@ public class LongLat {
      *
      */
     public boolean isConfined() {
-        double MAX_LATITUDE = 55.946233;  // the latitude for KFC and Forest Hill
-        double MIN_LATITUDE = 55.942617;  // the latitude for Buccleuch St bus stop and Top of Meadows
-        double MAX_LONGITUDE = -3.184319;  // the longitude for KFC and Buccleuch St bus stop
-        double MIN_LONGITUDE = -3.192473;  // the longitude for Forest Hill and Top of Meadows
+        // the latitude for KFC and Forest Hill
+        double MAX_LATITUDE = 55.946233;
+        // the latitude for Buccleuch St bus stop and Top of Meadows
+        double MIN_LATITUDE = 55.942617;
+        // the longitude for KFC and Buccleuch St bus stop
+        double MAX_LONGITUDE = -3.184319;
+        // the longitude for Forest Hill and Top of Meadows
+        double MIN_LONGITUDE = -3.192473;
         boolean latCheck = (latitude < MAX_LATITUDE) && (latitude > MIN_LATITUDE);
         boolean longCheck = (longitude > MIN_LONGITUDE) && (longitude < MAX_LONGITUDE);
         return (latCheck && longCheck);
@@ -55,7 +59,7 @@ public class LongLat {
      * this method return the distance between this LongLat location and the location provided
      * the distance is calculated under Pythagorean distance definition.
      *
-     * @param location this is the other coordinate which form the line segment with this location for distance calculation
+     * @param location this is the other coordinate which form the line segment with this.LongLat for distance calculation
      * @return the distance between this LongLat location and the given location.
      */
     public double distanceTo(LongLat location) {
@@ -89,8 +93,10 @@ public class LongLat {
             System.exit(0);
         }
         else {
-            double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(angle));  // the distance to the next position in longitude
-            double diffLatitude = SINGLE_MOVE * Math.sin(Math.toRadians(angle));  // the distance to the next position in latitude
+            // the distance to the next position in longitude
+            double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(angle));
+            // the distance to the next position in latitude
+            double diffLatitude = SINGLE_MOVE * Math.sin(Math.toRadians(angle));
             newLatitude += diffLatitude;
             newLongitude += diffLongitude;
         }
@@ -123,10 +129,13 @@ public class LongLat {
     public int getAngle(LongLat destination){
         double dY = Math.abs(destination.latitude - latitude);
         double dX = Math.abs(destination.longitude - longitude);
+        // the drone is heading North
         if(dX == 0 && destination.latitude > latitude){
-            return 90;// the drone is heading North
-        }else if(dX == 0 && destination.latitude < latitude){
-            return 270;// the drone is heading South
+            return 90;
+        }
+        // the drone is heading South
+        else if(dX == 0 && destination.latitude < latitude){
+            return 270;
         }
         double arcAngle = Math.atan(dY/dX);
         int degree = (int) Math.toDegrees(arcAngle);
@@ -137,14 +146,21 @@ public class LongLat {
         else{
             degree += (10 - remainder);
         }
+        // the drone is flying northeast
         if(destination.longitude>longitude && destination.latitude>latitude){
-            return degree;// the drone is flying northeast
-        }else if(destination.longitude<longitude && destination.latitude>latitude){
-            return (180-degree);// the drone is flying northwest
-        }else if(destination.longitude<longitude && destination.latitude<latitude){
-            return (180+degree);// the drone is flying southwest
-        }else{
-            return (350-degree); // the drone is flying southeast
+            return degree;
+        }
+        // the drone is flying northwest
+        else if(destination.longitude<longitude && destination.latitude>latitude){
+            return (180-degree);
+        }
+        // the drone is flying southwest
+        else if(destination.longitude<longitude && destination.latitude<latitude){
+            return (180+degree);
+        }
+        // the drone is flying southeast
+        else{
+            return (350-degree);
         }
     }
 
@@ -165,9 +181,9 @@ public class LongLat {
 
     // return the LongLat object in a more presentable way for human inspection
     // remove this method before final submission !!
-    public Pair<Double, Double>formatLongLat(){
-        return new Pair<>(longitude, latitude);
-    }
+    //public Pair<Double, Double>formatLongLat(){
+    //    return new Pair<>(longitude, latitude);
+    //}
 
 
 
