@@ -4,13 +4,6 @@ import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.*;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.LineString;
-import com.mapbox.geojson.Point;
-
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,7 +167,7 @@ public class Drone {
      * @return a list of valid orders as Order objects.
      */
     private List<Order> getValidOrders() {
-        Database ordersDb = new Database(dataBasePort);
+        DataBase ordersDb = new DataBase(dataBasePort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
         for (Order order : orders) {

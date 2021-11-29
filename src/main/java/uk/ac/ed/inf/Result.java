@@ -54,7 +54,7 @@ public class Result {
                 System.exit(1);
             }
             // store 'deliveries' and 'flightpath' table in the database
-            Database database = new Database(drone.dataBasePort);
+            DataBase database = new DataBase(drone.dataBasePort);
             database.createDeliveriesDb(drone.orderDataBase, drone.webServerPort);
             database.createFlightPathDb(drone.flightPathDataBase);
 

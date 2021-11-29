@@ -14,7 +14,7 @@ import java.util.List;
  * final outcome of this program.
  *
  */
-public class Database {
+public class DataBase {
     /**
      * this is the machine name of the database.
      */
@@ -37,7 +37,7 @@ public class Database {
      *
      * @param dataBasePort this is the portal number of the database to access.
      */
-    public Database(String dataBasePort) {
+    public DataBase(String dataBasePort) {
         this.dataBasePort = dataBasePort;
     }
 
