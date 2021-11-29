@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this class is used to define the characteristics and movements made by a drone.
  * an instance of this class represent the drone on the date specified.
  * this class require the portal number of database and webserver to access relative information.
  *
@@ -93,7 +92,7 @@ public class Drone {
     public String dataBasePort;
     /**
      * this is a count on the moves left on the day
-     * at the beginning the move is the upper limit 1500.
+     * at the beginning the move left is the upper limit 1500.
      */
     private static int MOVE_LEFT = 1500;
     /**
@@ -102,7 +101,7 @@ public class Drone {
     private final LongLat APPLETON_TOWER = new LongLat(-3.186874, 55.944494);
     /**
      * this is the drone's current location
-     * the drone's initial location is always at the Appleton Tower
+     * the drone's initial location is at the Appleton Tower
      */
     private LongLat currentLocation = APPLETON_TOWER;
     /**
@@ -168,7 +167,7 @@ public class Drone {
      *
      * @return a list of valid orders as Order objects.
      */
-    public List<Order> getValidOrders() {
+    private List<Order> getValidOrders() {
         Database ordersDb = new Database(dataBasePort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
@@ -398,7 +397,7 @@ public class Drone {
      * @param order this is the order to count for the moved needed.
      * @return the number of moves needed to complete the order provided.
      */
-    public int getRouteMovesCount(Order order) {
+    private int getRouteMovesCount(Order order) {
         int moves = 0;
         List<LongLat> routeBuilder = new ArrayList<>();
         // the route start from the drone's current location
