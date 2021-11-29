@@ -122,20 +122,23 @@ public class Drone {
      */
     private final String date;
     /**
-     * this field store a list of LongLat object
+     * this field store a list of coordinates visited by the drone during delivery journey as
+     * a list of LongLat objects
      * this would be parsed in to GeoJson file in the application
      */
-    private static final List<LongLat> geoJsonList = new ArrayList<>();
+    public List<LongLat> geoJsonList = new ArrayList<>();
     /**
-     * this field store a list of Order object
+     * this field store a list of orders made by the drone during delivery journey as
+     * a list of Order objects
      * this would be stored in to the 'deliveries' database created in the application
      */
-    private static final List<Order> orderDataBase = new ArrayList<>();
+    public List<Order> orderDataBase = new ArrayList<>();
     /**
-     * this field store a list of FlightPath object
+     * this field store a list of flightpath made by the drone during the delivery journey
+     * as a list of FlightPath objects
      * this would be stored in to the 'filghtpath' database created in the application
      */
-    private static final List<FlightPath> flightPathDataBase = new ArrayList<>();
+    public List<FlightPath> flightPathDataBase = new ArrayList<>();
 
     /**
      * this is the constructor of the Drone class
@@ -308,42 +311,7 @@ public class Drone {
         travelTo(lastOrder.orderNO, APPLETON_TOWER);
     }
 
-    /**
-     * this method would export the results obtained from makeDelivery(),
-     * it would export a geojson file for the drone's flight path and write two tables
-     * in the database, one called "deliveries" the other called "flightpath"
-     */
-    public void outPutResult(){
-        try{
-            List<Point> flightPathPoints = new ArrayList<>();
-            for(LongLat location : geoJsonList){
-                flightPathPoints.add(Point.fromLngLat(location.longitude,location.latitude));
-            }
-            LineString lineString = LineString.fromLngLats(flightPathPoints);
-            Feature feature = Feature.fromGeometry(lineString);
-            FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-            // initiate a file writer
-            String fileName = "drone-" + day + "-" + month + "-" + year;
-            try {
-                FileWriter geojsonFile = new FileWriter(fileName);
-                geojsonFile.write(featureCollection.toJson());
-                geojsonFile.close();
-                System.out.println("File write successfully!");
-            } catch (IOException e) {
-                System.err.println("Failed to generate the Geo json file");
-                System.exit(1);
-            }
-            // store 'deliveries' and 'flightpath' table in the database
-            Database database = new Database(dataBasePort);
-            database.createDeliveriesDb(orderDataBase,webServerPort);
-            database.createFlightPathDb(flightPathDataBase);
 
-        }catch (NullPointerException e){
-            System.err.println("method: makeDelivery, has to be called first");
-            System.exit(1);
-        }
-
-    }
     /**
      * this method would renew the drone's current location with the given new location
      * this method would also check if the drone's new location is within the confined area
