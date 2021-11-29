@@ -1,7 +1,5 @@
 package uk.ac.ed.inf;
 
-import org.javatuples.Pair;
-
 import java.awt.geom.Line2D;
 import java.util.Collections;
 import java.util.*;
@@ -23,9 +21,14 @@ import java.util.List;
  * note that the portal number here MUST match the number used to activate the database and webserver
  * through commend line before the start of this program.
  *
+ * the two most important methods in this class are makeDelivery() and outPutResult()
+ * note that makeDelivery() has to be called before outPutResult()
+ *
+ * following explain the working principle for makeDelivery():
  * at the beginning of a day, the drone would depart from the Appleton Tower, the daily moves limit is
  * 1500 moves, the drone have to return to Appleton Tower after finishing the day's orders.
  * or it would return to Appleton Tower if the moves left is not enough for delivering the next order
+ *
  * before the start of delivering any order, it's mandatory to check if the move left after making the order
  * is greater than or equal to the moves needed to return to Appleton Tower from the destination of the delivery.
  * if yes, then the order can be delivered, otherwise the drone would return to the Appleton Tower.
@@ -57,15 +60,15 @@ import java.util.List;
  * if the journey to either one of the landmarks cross, the drone would travel to the other one. If the path to both landmarks
  * don't cross, then the drone would travel to the one that's closest to the drone's location.
  *
- * there are three outcomes from the drone's deliveries made on the date.
+ * following explain the working principle of outPutResult():
+ * there are three outcomes from the drone's deliveries made on the date and they will be exported in the method:
  * the first one is the order made on the day, which is recorded as a list of Order objects,
- * this would be written in the database in the applying stage.
+ * this would be written in the database.
  * the second one is the flightpath of the delivery on the day, which is recorded as a list of FlightPath objects,
- * this would be written in the database in the applying stage.
+ * this would be written in the database.
  * the last one is a list of coordinates recording all the location travelled by the drone on the day, which is represented as
  * a list of LongLat objects.
- * this would be transformed to a geojson file in the applying stage, so that when putting the file in geojson.io, the flight
- * path can be illustrated.
+ * this would be transformed to a geojson file.
  *
  *
  */
@@ -508,23 +511,6 @@ public class Drone {
         // return the landmark with the minimum distance
         return distanceToLMs.get(Collections.min(distances));
     }
-
-    // delete this main before submit!!
-    /*public static void main(String[] args) {
-        //Drone testBot = new Drone("2022-04-15", "9898", "9876");
-        W3words w3words = new W3words("9898");
-        LongLat from = new LongLat(-3.191257, 55.945626);
-        LongLat to = new LongLat(-3.188512, 55.944036);
-        LongLat testLM = testBot.getLandMark(to, from);
-        System.out.println(testLM.formatLongLat());
-        System.out.println(testBot.checkNoFlyZones(from, testLM));
-
-        List<Order> orderList = testBot.getValidOrders();
-        Order order = orderList.get(1);
-       // Pair<List<FlightPath>, List<LongLat>> pair = testBot.travelTo(order.orderNO, w3words.toLongLat(order.deliverTo));
-        System.out.println(pair.getValue0());
-        System.out.println(pair.getValue1());
-    } */
 
 
 }
