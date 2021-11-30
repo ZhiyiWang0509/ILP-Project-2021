@@ -12,25 +12,15 @@ import java.net.http.HttpResponse.BodyHandlers;
  * there are three folders stored in the web server: 'menus', 'words' and 'buildings'.
  * instance of this class can access files in any one of the folders by specifying
  * the file name and the folder name when the instance is created.
- * 'buildings' folders contain 'landmarks.geojson' and 'no-fly-zones.geojson'
- * 'menus folder' contain 'menus.json'
- * 'words' folder contain json files corresponding to w3words format location,
- * for instance, information about a location with w3word format: 'word1.word2.word3'
- * is stored in a file location: 'word1/word2/word3/details.json'
- * the portal of the webserver must match the portal initiated through commend line before the program
- * starts.
  *
  */
 public class WebAccess {
-
     /**
      * this is the machine name of the webserver
-     * in this programme, files are stored on local host
      */
     private static final String server = "localhost";
     /**
      * this is the HTTP client to access the web server
-     * only one client is created since it is a heavy-weight object
      */
     private static final HttpClient client = HttpClient.newHttpClient();
     /**
@@ -84,11 +74,6 @@ public class WebAccess {
      * also, the file name will be modified if the folder name is 'words': the file name will be transformed
      * using the 'formatLocation' method previously defined.
      *
-     * then the modified file name and the folder name will be combined with server name and portal number
-     * to make a complete url address to access.
-     * with the url address, the method send a request to the web server, IOException and InterruptedException
-     * are catch while sending the request.
-     * if any of the exceptions is caught, the system will be terminated.
      *
      * @return the result of sending the request to the webserver, which is the content of the json file as a json string
      *
@@ -107,16 +92,22 @@ public class WebAccess {
                 .header("accept",(folderName + ".json") )
                 .uri(URI.create(url))
                 .build();
-        HttpResponse<String> response = null;  // receive the response from the request made
-        {
-            try {
-                response = client.send(request, BodyHandlers.ofString());
-            } catch (IOException | InterruptedException e) {
-                System.err.println("Issue connecting to webserver");
-                System.exit(1);  // exit the system when there's connection issue with the web server
+        HttpResponse<String> response = null;
+        try{
+            {
+                try {
+                    response = client.send(request, BodyHandlers.ofString());
+                } catch (IOException | InterruptedException e) {
+                    System.err.println("Issue connecting to webserver");
+                    System.exit(1);
+                }
             }
+        }catch(NullPointerException e){
+            System.err.println("The response from the Webserver is empty");
+            System.exit(1);
+        }catch (Exception e){
+            System.exit(1);
         }
-        assert response != null;
         return response.body();
     }
 }

@@ -9,60 +9,8 @@ import java.util.List;
 
 /**
  * an instance of this class represent the drone on the date specified.
- * this class require the portal number of database and webserver to access relative information.
- *
- * note that the portal number here MUST match the number used to activate the database and webserver
- * through commend line before the start of this program.
- *
- * the two most important methods in this class are makeDelivery() and outPutResult()
- * note that makeDelivery() has to be called before outPutResult()
- *
- * following explain the working principle for makeDelivery():
- * at the beginning of a day, the drone would depart from the Appleton Tower, the daily moves limit is
- * 1500 moves, the drone have to return to Appleton Tower after finishing the day's orders.
- * or it would return to Appleton Tower if the moves left is not enough for delivering the next order
- *
- * before the start of delivering any order, it's mandatory to check if the move left after making the order
- * is greater than or equal to the moves needed to return to Appleton Tower from the destination of the delivery.
- * if yes, then the order can be delivered, otherwise the drone would return to the Appleton Tower.
- *
- * during a day of delivery, the drone MUST always remain in the confined area, which is defined by specifying four
- * corners of the area. The method to check this is in the LongLat class, and it will be called in this class when
- * the drone is making the next move.
- *
- * before making any order, the orders of the day needs to be checked if it's valid.
- * by a valid order, the number of items it contains must not be more than four and the number of shops needs to travel
- * to must be no more than two.
- *
- * in order to maximise the percentage monetary value delivered on the day, the drone would prioritize the order with higher
- * monetary return per move. Orders with higher returns and lower moves are preferred.
- *
- * when the drone is making a delivery order, it would first fly to the shops to collect the items required in the order,
- * if multiple items are from the same shop in an order, the drone only need to travel to the shop once.
- * after picking up all the items needed, the drone would fly to the destination of delivery, which is specified by the
- * 'deliverTo' location in an order.
- *
- * the drone would need to 'hover' for a move when it's located 'close to' a shop location or a deliverTo location.
- * by 'hover' it means a unit reduction in moves count with no change in location.
- *
- * on the drone's journey to any location, it has to check if the direct path to the destination cross the borders of
- * no-fly-zones.
- * if cross, then the drone would need to travel to an appropriate landmark to avoid crossing no-fly-zones, there are
- * two landmarks available to choose, one is located in the top right of the confined area, and the other is located at
- * relatively bottom left of the map. The path from the drone's location to the landmark must not cross no-fly-borders,
- * if the journey to either one of the landmarks cross, the drone would travel to the other one. If the path to both landmarks
- * don't cross, then the drone would travel to the one that's closest to the drone's location.
- *
- * following explain the working principle of outPutResult():
- * there are three outcomes from the drone's deliveries made on the date and they will be exported in the method:
- * the first one is the order made on the day, which is recorded as a list of Order objects,
- * this would be written in the database.
- * the second one is the flightpath of the delivery on the day, which is recorded as a list of FlightPath objects,
- * this would be written in the database.
- * the last one is a list of coordinates recording all the location travelled by the drone on the day, which is represented as
- * a list of LongLat objects.
- * this would be transformed to a geojson file.
- *
+ * the drone declared is able to make deliveries of the day by methods in
+ * this class.
  *
  */
 public class Drone {
@@ -170,14 +118,17 @@ public class Drone {
         DataBase ordersDb = new DataBase(dataBasePort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
-        for (Order order : orders) {
-            if (order.itemList.size() <= 4 && order.getOrderShops(webServerPort).size() <= 2) {
-                validOrders.add(order);
+        try{
+            for (Order order : orders) {
+                if (order.itemList.size() <= 4 && order.getOrderShops(webServerPort).size() <= 2) {
+                    validOrders.add(order);
+                }
             }
-        }
-        if (validOrders.isEmpty()) {
-            System.out.println("There's no valid order to deliver today");
-            System.exit(0);
+        }catch (NullPointerException e){
+            System.err.println("There's no valid order to deliver today");
+            System.exit(1);
+        } catch (Exception e){
+            System.exit(1);
         }
         return validOrders;
     }
@@ -193,14 +144,20 @@ public class Drone {
     private Order getNextOrder(List<Order> orderList){
         HashMap<Double, Order> comparator = new HashMap<>();
         List<Double> valueMoveRatios = new ArrayList<>();
-        for(Order order : orderList){
-            comparator.put(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order),order);
-            valueMoveRatios.add(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order));
+        try{
+            for(Order order : orderList){
+                comparator.put(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order),order);
+                valueMoveRatios.add(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order));
 
+            }
+        }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+            System.err.println("The input list is empty");
+            System.exit(1);
         }
         valueMoveRatios.sort(Collections.reverseOrder());
         Double max_key = valueMoveRatios.get(0);
         return comparator.get(max_key);
+
     }
 
     /**
@@ -233,88 +190,92 @@ public class Drone {
     /**
      * this method would make the drone deliver the valid orders of the day until it runs out
      * of moves.
-     * it needs to obey the rules of not crossing the no-fly-zones borders and fly out of the confined area.
-     * if the drone would cross no-fly-zones borders, it would need to travel to the nearest appropriate landmark
-     * to avoid no-fly-area.
-     * once the drone is close to any shop or deliverTo location it needs to hover for a move.
-     * it would update the orders actually made, the flightpath took and the coordinates visited in the fields:
-     * orderDatabase, flightPathDatabase and geoJsonList respectively.
+     * at the start of each day's delivery it starts from Appleton Tower, it would return to Appleton Tower at the
+     * end of its lifecycle
+     *
+     * this method would keep update the orders actually made, the flightpath took and the coordinates visited in
+     * the fields: orderDatabase, flightPathDatabase and geoJsonList respectively.
      *
      */
     public void makeDelivery() {
-        W3words w3words = new W3words(webServerPort);
-        List<Order> validOrders = getValidOrders();
-        // use the order number of the last order as the orderNo for drone's return to the Appleton
-        int LAST_ORDER_INDEX = validOrders.size() - 1;
-        Order lastOrder = validOrders.get(LAST_ORDER_INDEX);
+        try {
+            W3words w3words = new W3words(webServerPort);
+            List<Order> validOrders = getValidOrders();
+            // use the order number of the last order as the orderNo for drone's return to the Appleton
+            int LAST_ORDER_INDEX = validOrders.size() - 1;
+            Order lastOrder = validOrders.get(LAST_ORDER_INDEX);
+            geoJsonList.add(currentLocation);
 
-        geoJsonList.add(currentLocation);
-        while(!validOrders.isEmpty()){
-            Order order = getNextOrder(validOrders);
-            LongLat deliverTo = w3words.toLongLat(order.deliverTo);
-            String orderNo = order.orderNO;
-            // this is the total moves needed for this order
-            int orderMoves = getRouteMovesCount(order);
-            // this is the moves needed to return to Appleton after the order's finished
-            int returnMoves = getMovesToAT(deliverTo);
-            // this is to check if the drone still have moves left for returning after finishing this order
-            if ((MOVE_LEFT - orderMoves) >= returnMoves) {
-                List<String> shops = order.getOrderShops(webServerPort);
-                while(!shops.isEmpty()){
-                    String shop = getNextShop(shops);
-                    LongLat shopLngLat = w3words.toLongLat(shop);
-                    // this is to check if the path to the shop cross the non-fly zone
-                    if (checkNoFlyZones(currentLocation, shopLngLat)) {
-                        LongLat landmark = getLandMark(currentLocation, shopLngLat);
+            while (!validOrders.isEmpty()) {
+                Order order = getNextOrder(validOrders);
+                LongLat deliverTo = w3words.toLongLat(order.deliverTo);
+                String orderNo = order.orderNO;
+                // this is the total moves needed for this order
+                int orderMoves = getRouteMovesCount(order);
+                // this is the moves needed to return to Appleton after the order's finished
+                int returnMoves = getMovesToAT(deliverTo);
+                // this is to check if the drone still have moves left for returning after finishing this order
+                if ((MOVE_LEFT - orderMoves) >= returnMoves) {
+                    List<String> shops = order.getOrderShops(webServerPort);
+                    try{
+                        while (!shops.isEmpty()) {
+                            String shop = getNextShop(shops);
+                            LongLat shopLngLat = w3words.toLongLat(shop);
+                            if (checkNoFlyZones(currentLocation, shopLngLat)) {
+                                LongLat landmark = getLandMark(currentLocation, shopLngLat);
+                                travelTo(orderNo, landmark);
+                            }
+                            travelTo(orderNo, shopLngLat);
+                            shops.remove(shop);
+                            // the drone hovers for 1 move wh it reaches shop
+                            MOVE_LEFT -= 1;
+                        }
+                    }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+                        System.err.println("Shop Collection is empty");
+                        System.exit(1);
+                    }
+                    if (checkNoFlyZones(currentLocation, deliverTo)) {
+                        LongLat landmark = getLandMark(currentLocation, deliverTo);
                         travelTo(orderNo, landmark);
                     }
-                    travelTo(orderNo,shopLngLat);
-                    shops.remove(shop);
-                    // the drone hovers for 1 move wh it reaches shop
+                    // at this point, an order is made
+                    travelTo(orderNo, deliverTo);
+                    orderDataBase.add(order);
+                    validOrders.remove(order);
                     MOVE_LEFT -= 1;
                 }
-                // this is to check if the path to the delivery spot cross the non-fly zone
-                if (checkNoFlyZones(currentLocation, deliverTo)) {
-                    LongLat landmark = getLandMark(currentLocation, deliverTo);
-                    travelTo(orderNo,landmark);
+                // this is the case if the drone doesn't have enough move to complete the next order
+                else {
+                    if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
+                        LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
+                        travelTo(orderNo, landmark);
+                    }
+                    travelTo(orderNo, APPLETON_TOWER);
+                    break;
                 }
-                // at this point, an order is made
-                travelTo(orderNo,deliverTo);
-                orderDataBase.add(order);
-                validOrders.remove(order);
-                MOVE_LEFT -= 1;
             }
-            // this is the case if the drone doesn't have enough move to fulfill the next delivery journey
-            else {
-                // this is to check if the path to Appleton Tower cross the non-fly zone
-                if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
-                    LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                    travelTo(orderNo,landmark);
-                }
-                travelTo(orderNo,APPLETON_TOWER);
-                break;
+            if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
+                LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
+                travelTo(lastOrder.orderNO, landmark);
             }
+            // at this point, the drone has finished all the orders and returned to the Appleton Tower
+            travelTo(lastOrder.orderNO, APPLETON_TOWER);
+        }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+            System.err.println("Order collection is empty");
+            System.exit(1);
+        }catch(Exception e){
+            System.exit(1);
         }
-        // this is to check if the path to Appleton Tower cross the non-fly zone
-        if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
-            LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-            travelTo(lastOrder.orderNO, landmark);
-        }
-        // at this point, the drone has finished all the orders and returned to the Appleton Tower
-        travelTo(lastOrder.orderNO, APPLETON_TOWER);
     }
 
 
     /**
-     * this method would renew the drone's current location with the given new location
+     * this method would renew the drone's current location to the given new location
      * this method would also check if the drone's new location is within the confined area
-     * if yes, then update location
-     * if no, then the program will be terminated
      *
      * @param newLocation the drone's new location
      */
     private void updateLocation(LongLat newLocation) {
-        // this is to check if the drone is located in the confined area
         if (newLocation.isConfined()) {
             currentLocation = newLocation;
         } else {
@@ -325,7 +286,6 @@ public class Drone {
     }
     /**
      * this method would make the drone travel to a location that is close to the given LongLat location
-     * by taking a move in the direction between the given location and the current location.
      * after taking a move, the flight path is recorded as well as the updated current location
      * the move count need to be reduced by 1 unit after taking a move
      * after the drone is close to the destination, the local fields store the coordinates visited and flightpath made
@@ -371,27 +331,31 @@ public class Drone {
             routeBuilder.add(w3words.toLongLat(shop));
         }
         List<String> shopList = order.getOrderShops(webServerPort);
-        while(!shopList.isEmpty()){
-            String nextShop = getNextShop(shopList);
-            routeBuilder.add(w3words.toLongLat(nextShop));
-            shopList.remove(nextShop);
+        try{
+            while(!shopList.isEmpty()){
+                String nextShop = getNextShop(shopList);
+                routeBuilder.add(w3words.toLongLat(nextShop));
+                shopList.remove(nextShop);
 
-        }
-        routeBuilder.add(w3words.toLongLat(order.deliverTo));
-        for (int i = 1; i < routeBuilder.size(); i++) {
-            // this is the index of the previous location
-            int j = i - 1;
-            LongLat fromLoc = routeBuilder.get(j);
-            LongLat ToLoc = routeBuilder.get(i);
-            if (checkNoFlyZones(fromLoc, ToLoc)) {
-                LongLat landmark = getLandMark(fromLoc, ToLoc);
-                moves += fromLoc.getMoves(landmark);
-                moves += landmark.getMoves(ToLoc);
-            } else {
-                moves += fromLoc.getMoves(ToLoc);
-                // drone needs to hover at shop and deliver location.
-                moves += 1;
             }
+            routeBuilder.add(w3words.toLongLat(order.deliverTo));
+            for (int i = 1; i < routeBuilder.size(); i++) {
+                // this is the index of the previous location
+                int j = i - 1;
+                LongLat fromLoc = routeBuilder.get(j);
+                LongLat ToLoc = routeBuilder.get(i);
+                if (checkNoFlyZones(fromLoc, ToLoc)) {
+                    LongLat landmark = getLandMark(fromLoc, ToLoc);
+                    moves += fromLoc.getMoves(landmark);
+                    moves += landmark.getMoves(ToLoc);
+                } else {
+                    moves += fromLoc.getMoves(ToLoc);
+                    // drone needs to hover at shop and deliver location.
+                    moves += 1;
+                }
+            }
+        }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+            System.exit(1);
         }
         return moves;
     }
@@ -413,10 +377,14 @@ public class Drone {
             path.add(landmark);
         }
         path.add(APPLETON_TOWER);
-        for (int i = 1; i < path.size(); i++) {
-            // this is the index of the previous location
-            int j = i - 1;
-            moves += path.get(j).getMoves(path.get(i));
+        try{
+            for (int i = 1; i < path.size(); i++) {
+                // this is the index of the previous location
+                int j = i - 1;
+                moves += path.get(j).getMoves(path.get(i));
+            }
+        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+            System.exit(1);
         }
         return moves;
     }
@@ -445,8 +413,6 @@ public class Drone {
     /**
      * this is method return the appropriate landmark to travel to if the path formed by the two LongLat locations
      * cross any of the no-fly-zones borders.
-     * the paths to the landmarks from the starting location and from the landmarks to the finishing location would be
-     * checked whether no-fly-zones borders are crossed.
      * if one of the paths to landmarks crosses, then the other landmark would be return.
      * if both don't cross, the landmark that's closest to the drone's current location would be returned.
      *
@@ -455,14 +421,9 @@ public class Drone {
      * @return the location of the landmark for the drone to travel to as a LongLat object.
      */
     private LongLat getLandMark(LongLat startLoc, LongLat finishLoc) {
-        // this hashmap store the distance corresponding to each landmark
         HashMap<Double, LongLat> distanceToLMs = new HashMap<>();
-        // this list store the distances to each landmark
-        // used to find the landmark with the minimum distance
         ArrayList<Double> distances = new ArrayList<>();
         for (LongLat landmark : landmarks) {
-            // this is to check if both the path from starting location to the landmark
-            // and from the landmark to the finish location won't cross the no-fly-zone borders.
             if (!checkNoFlyZones(startLoc, landmark) && !checkNoFlyZones(landmark,finishLoc)) {
                 Double distance = startLoc.distanceTo(landmark);
                 distanceToLMs.put(distance, landmark);

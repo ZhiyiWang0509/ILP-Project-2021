@@ -39,9 +39,8 @@ public class Order {
     }
 
     /**
-     * this method return the total amount of money made by doing this order
-     * the total amount include a fixed 50 pence of delivery charge which is
-     * compulsory for each order
+     * this method calculate the total amount of money made by doing this order
+     * include a fixed 50 pence of delivery charge
      *
      * @param webPort this is the portal of the webserver where the menu of the
      *                shop is stored
@@ -57,6 +56,7 @@ public class Order {
             }
         } catch(NullPointerException e){
             System.err.println("The item isn't found in the menu.");
+            System.exit(1);
         }
         int DELIVERY_COST = 50;
         return PRICE + DELIVERY_COST;
@@ -65,13 +65,9 @@ public class Order {
     /**
      * this method return a set of all the shops needs to visit to pick up all the items
      * required in the order.
-     * a set is used since it's unnecessary to travel to a shop multiple times even if
-     * there are multiple items in the order that are from the same shop
      *
      * @param webPort this is the portal of the web server where the menu of the shop is stored
-     * @return a set of all the shops need to travel to, a set is used since there's no necessary
-     * to travel to a shop multiple times even if there are multiple items from the same shop in
-     * the order
+     * @return a set of all the unique shops need to travel to
      */
     public List<String> getOrderShops(String webPort){
         Menus menus = new Menus(webPort);

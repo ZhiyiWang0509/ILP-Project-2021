@@ -2,7 +2,6 @@ package uk.ac.ed.inf;
 
 /**
  * this class is mainly used as a parser for json files stored in the 'words' folder on the webserver.
- * it also contains method to modify its vital attribute: coordinates. into a convenient format for later implementations.
  * fields name in this class match exactly to the attribute names in the json file.
  *
  */

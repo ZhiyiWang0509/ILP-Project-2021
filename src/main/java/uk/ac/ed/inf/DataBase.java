@@ -46,15 +46,12 @@ public class DataBase {
      *
      * @return the location of the database to access the derby database.
      */
-    public String getJdbcString(){
+    private String getJdbcString(){
         return "jdbc:derby://" + server + ":" + dataBasePort + "/derbyDB";
     }
 
     /**
      * this method would access the database for information related to an order on a given day
-     * the parameter would be used to select orders from the 'orders' table on the delivery date specified.
-     * 'orderDetails' table will also be accessed for item names in each order.
-     * the information regarding a single order obtained from the tables will be used to create an Order object
      * overall, every order made on the date specified would be collected and returned as a list of Order object.
      *
      * note that after making a database query, the query of creating the connection needs to be closed and at
@@ -74,31 +71,44 @@ public class DataBase {
             psDataQuery.setString(1, date);
 
             ResultSet rs = psDataQuery.executeQuery();
-            while (rs.next()){
-                String orderNo = rs.getString("orderNo");
-                String deliverTo = rs.getString("deliverTo");
-                ArrayList<String> itemList = new ArrayList<>();
-                final String dataQuery2 = "select * from " + ORDER_DETAILS + " where " + "orderNo" + "=(?)";
-                try {
-                    PreparedStatement psDataQuery2 = conn.prepareStatement(dataQuery2);
-                    psDataQuery2.setString(1, orderNo);
-                    ResultSet rs2 = psDataQuery2.executeQuery();
-                    while (rs2.next()) {
-                        String itemName = rs2.getString("item");
-                        itemList.add(itemName);
+            try{
+                while (rs.next()){
+                    String orderNo = rs.getString("orderNo");
+                    String deliverTo = rs.getString("deliverTo");
+                    ArrayList<String> itemList = new ArrayList<>();
+                    final String dataQuery2 = "select * from " + ORDER_DETAILS + " where " + "orderNo" + "=(?)";
+                    try {
+                        PreparedStatement psDataQuery2 = conn.prepareStatement(dataQuery2);
+                        psDataQuery2.setString(1, orderNo);
+                        ResultSet rs2 = psDataQuery2.executeQuery();
+                        try{
+                            while (rs2.next()) {
+                                String itemName = rs2.getString("item");
+                                itemList.add(itemName);
+                            }
+                        }catch(NullPointerException e){
+                            System.err.println("There's no orders in the database under this date");
+                            System.exit(1);
+                        }
+                        psDataQuery2.close();
+                    } catch (SQLException e){
+                        System.err.println("Failed in connecting to orderDetails database");
+                        System.exit(1);
                     }
-                    psDataQuery2.close();
-                } catch (SQLException e){
-                    System.err.println("Failed in connecting to orderDetails database");
-                    System.exit(1);
+                    Order order = new Order(orderNo, deliverTo,itemList);
+                    orderList.add(order);
                 }
-                Order order = new Order(orderNo, deliverTo,itemList);
-                orderList.add(order);
+            } catch(NullPointerException e){
+                System.err.println("There's no orders in the database under this date");
+                System.exit(1);
             }
              psDataQuery.close();
-             conn.close(); // shutdown the database
+            // shutdown the database
+             conn.close();
         } catch (SQLException e){
             System.err.println("Failed in connecting to orders database");
+            System.exit(1);
+        } catch(Exception e){
             System.exit(1);
         }
         return orderList;
@@ -107,14 +117,8 @@ public class DataBase {
 
     /**
      * this method would create a 'deliveries' table in the derby database and write data in.
-     * this method would first check the existence of 'deliveries' table, if there's one such table
-     * in the database, the old one would be dropped and replaced by the latest created one.
-     * the data write in is related to the orders made on the specified day.
-     * the data includes order number, the location of delivery and the monetary value of making this
-     * order.
      * in order to get the monetary value of the order, the method require access to the web server
-     * hence, web server is required.
-     *
+
      * note that after making a database query, the statement of creating the connection needs to be closed
      * and at the end of the method, as well as the connection to the database.
      *
@@ -137,28 +141,31 @@ public class DataBase {
                     "costInPence int)");
             PreparedStatement psOrder = conn.prepareStatement(
                     "insert into deliveries values (?,?,?)");
-            for(Order order : orderList){
-                psOrder.setString(1, order.orderNO);
-                psOrder.setString(2,order.deliverTo);
-                psOrder.setInt(3,order.getOrderCost(webServerPort));
-                psOrder.execute();
+            try{
+                for(Order order : orderList){
+                    psOrder.setString(1, order.orderNO);
+                    psOrder.setString(2,order.deliverTo);
+                    psOrder.setInt(3,order.getOrderCost(webServerPort));
+                    psOrder.execute();
+
+                }
+                System.out.println("Database generated successfully");
+            } catch (NullPointerException e){
+                System.err.println("The input Order collection is empty");
+                System.exit(1);
             }
-            System.out.println("Database generated successfully");
-            statement.close();  //shutdown the database
+            statement.close();
             conn.close();
         } catch (SQLException e) {
             System.err.println("The connection failed in deliveries table");
+            System.exit(1);
+        } catch (Exception e){
             System.exit(1);
         }
     }
 
     /**
      * this method would create a 'flightpath' table in the derby database and write data in.
-     * this method would first check the existence of 'flightpath' table, if there's one such table
-     * in the database, the old one would be dropped and replaced by the latest created one.
-     * the data write in is related to the paths taken by the drone in making the deliveries on the day specified.
-     * each flight path includes: the longitude and latitude of where the drone is from, the longitude and latitude
-     * of where the drone is flying to and the angle between the two location.
      *
      * note that after making a database query, the statement of creating the connection needs to be closed
      * and at the end of the method, as well as the connection to the database.
@@ -185,20 +192,27 @@ public class DataBase {
                     "toLatitude double)");
             PreparedStatement psFlightPath = conn.prepareStatement(
                     "insert into flightpath values (?,?,?,?,?,?)");
-            for(FlightPath flightPath : flightPaths){
-                psFlightPath.setString(1, flightPath.orderNo);
-                psFlightPath.setDouble(2,flightPath.fromLongitude);
-                psFlightPath.setDouble(3,flightPath.fromLatitude);
-                psFlightPath.setInt(4,flightPath.angle);
-                psFlightPath.setDouble(5,flightPath.tolongitude);
-                psFlightPath.setDouble(6,flightPath.toLatitude);
-                psFlightPath.execute();
+            try{
+                for(FlightPath flightPath : flightPaths){
+                    psFlightPath.setString(1, flightPath.orderNo);
+                    psFlightPath.setDouble(2,flightPath.fromLongitude);
+                    psFlightPath.setDouble(3,flightPath.fromLatitude);
+                    psFlightPath.setInt(4,flightPath.angle);
+                    psFlightPath.setDouble(5,flightPath.tolongitude);
+                    psFlightPath.setDouble(6,flightPath.toLatitude);
+                    psFlightPath.execute();
+                }
+                System.out.println("Database generated successfully");
+            } catch(NullPointerException e){
+                System.err.println("The FlightPath collection provided is empty");
+                System.exit(1);
             }
-            System.out.println("Database generated successfully");
             statement.close();
             conn.close(); //shutdown the database
         } catch (SQLException e) {
             System.err.println("The connection failed in flightpath table");
+            System.exit(1);
+        }catch(Exception e){
             System.exit(1);
         }
     }

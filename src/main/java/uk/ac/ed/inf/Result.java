@@ -58,8 +58,10 @@ public class Result {
             database.createDeliveriesDb(drone.orderDataBase, drone.webServerPort);
             database.createFlightPathDb(drone.flightPathDataBase);
 
-        } catch (NullPointerException e) {
+        } catch (ArrayIndexOutOfBoundsException|NullPointerException e) {
             System.err.println("Drone.makeDelivery, has to be called first");
+            System.exit(1);
+        }catch (Exception e){
             System.exit(1);
         }
     }

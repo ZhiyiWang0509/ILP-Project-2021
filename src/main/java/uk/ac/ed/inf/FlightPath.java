@@ -33,6 +33,7 @@ public class FlightPath {
 
     /**
      * this is the constructor of FlightPath class
+     *
      * @param orderNo this is the order number of the order delivered on this path
      * @param fromLongitude this is the longitude of the location the drone is travelling from
      * @param fromLatitude this is the latitude of the location the drone is travelling from

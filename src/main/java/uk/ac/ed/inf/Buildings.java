@@ -49,7 +49,6 @@ public class Buildings {
     private List<Feature> getFeatures(){
         WebAccess newBuildings = new WebAccess(webPort, "buildings", fileName);
         FeatureCollection featureCollection = FeatureCollection.fromJson(newBuildings.getResponse());
-        assert featureCollection.features() != null;
         return featureCollection.features();
     }
 
@@ -65,20 +64,25 @@ public class Buildings {
      */
     private List<List<LongLat>> getNoFlyCoordinates(){
         if(!fileName.equals("no-fly-zones")){
+            System.err.println("Invalid File name input");
             System.exit(1);
         }
         List<Feature> features = getFeatures();
         List<List<LongLat>> coordinates = new ArrayList<>();
-        for(Feature fc : features) {
-            assert fc.geometry() != null;
-            // cast the feature to polygon object
-            Polygon polygon = Polygon.fromJson(fc.geometry().toJson());
-            List<LongLat> localPoints = new ArrayList<>();
-            for(Point point : polygon.coordinates().get(0)){
-                LongLat newLoc = new LongLat(point.longitude(), point.latitude());
-                localPoints.add(newLoc);
-            }
-            coordinates.add(localPoints);
+        try{
+            for(Feature fc : features) {
+                assert fc.geometry() != null;
+                // cast the feature to polygon object
+                Polygon polygon = Polygon.fromJson(fc.geometry().toJson());
+                List<LongLat> localPoints = new ArrayList<>();
+                for(Point point : polygon.coordinates().get(0)){
+                    LongLat newLoc = new LongLat(point.longitude(), point.latitude());
+                    localPoints.add(newLoc);
+                }
+                coordinates.add(localPoints);
+        }
+        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+            System.exit(1);
         }
         return coordinates;
     }
@@ -95,20 +99,24 @@ public class Buildings {
     public List<Line2D> getNoFlyBorders(){
         List<Line2D> borders =  new ArrayList<>();
         List<List<LongLat>> noFlyCoordinates = getNoFlyCoordinates();
-        for(List<LongLat> area : noFlyCoordinates){
-            for(int i = 1; i < area.size(); i++) {
-                int j = i - 1;
-                LongLat noFlyBorder1 = area.get(j);
-                LongLat noFlyBorder2 = area.get(i);
-                Line2D border = new Line2D.Double(noFlyBorder1.longitude, noFlyBorder1.latitude, noFlyBorder2.longitude, noFlyBorder2.latitude);
-                borders.add(border);
+        try{
+            for(List<LongLat> area : noFlyCoordinates){
+                for(int i = 1; i < area.size(); i++) {
+                    int j = i - 1;
+                    LongLat noFlyBorder1 = area.get(j);
+                    LongLat noFlyBorder2 = area.get(i);
+                    Line2D border = new Line2D.Double(noFlyBorder1.longitude, noFlyBorder1.latitude, noFlyBorder2.longitude, noFlyBorder2.latitude);
+                    borders.add(border);
+                }
+                // the first coordinate
+                LongLat head = area.get(0);
+                // the last coordinate
+                LongLat tail = area.get(area.size()-1);
+                Line2D lastBorder = new Line2D.Double(head.longitude, head.latitude, tail.longitude, tail.latitude);
+                borders.add(lastBorder);
             }
-            // the first coordinate
-            LongLat head = area.get(0);
-            // the last coordinate
-            LongLat tail = area.get(area.size()-1);
-            Line2D lastBorder = new Line2D.Double(head.longitude, head.latitude, tail.longitude, tail.latitude);
-            borders.add(lastBorder);
+        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+            System.exit(1);
         }
         return borders;
     }
@@ -126,11 +134,15 @@ public class Buildings {
         }
         List<Feature> features = getFeatures();
         List<LongLat> coordinates = new ArrayList<>();
-        for(Feature fc : features) {
-            assert fc.geometry() != null;
-            Point point = Point.fromJson(fc.geometry().toJson());
-            LongLat location = new LongLat(point.longitude(), point.latitude());
-            coordinates.add(location);
+        try{
+            for(Feature fc : features) {
+                assert fc.geometry() != null;
+                Point point = Point.fromJson(fc.geometry().toJson());
+                LongLat location = new LongLat(point.longitude(), point.latitude());
+                coordinates.add(location);
+            }
+        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+            System.exit(1);
         }
         return coordinates;
     }
