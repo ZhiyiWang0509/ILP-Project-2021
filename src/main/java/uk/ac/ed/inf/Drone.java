@@ -205,7 +205,7 @@ public class Drone {
             int LAST_ORDER_INDEX = validOrders.size() - 1;
             Order lastOrder = validOrders.get(LAST_ORDER_INDEX);
             geoJsonList.add(currentLocation);
-
+            System.out.println("Orders undelivered: " + validOrders.size());
             while (!validOrders.isEmpty()) {
                 Order order = getNextOrder(validOrders);
                 LongLat deliverTo = w3words.toLongLat(order.deliverTo);
@@ -246,12 +246,7 @@ public class Drone {
                 }
                 // this is the case if the drone doesn't have enough move to complete the next order
                 else {
-                    if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
-                        LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                        travelTo(orderNo, landmark);
-                    }
-                    travelTo(orderNo, APPLETON_TOWER);
-                    break;
+                    validOrders.remove(order);
                 }
             }
             if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
@@ -260,6 +255,9 @@ public class Drone {
             }
             // at this point, the drone has finished all the orders and returned to the Appleton Tower
             travelTo(lastOrder.orderNO, APPLETON_TOWER);
+            System.out.println("Moves left: " + MOVE_LEFT);
+            System.out.println("Orders delivered: " + orderDataBase.size());
+            //System.out.println(flightPathDataBase.size());
         }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
             System.err.println("Order collection is empty");
             System.exit(1);

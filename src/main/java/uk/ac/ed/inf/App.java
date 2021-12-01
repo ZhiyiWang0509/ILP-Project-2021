@@ -9,11 +9,17 @@ public class App
     public static void main( String[] args ){
         try{
 
-            String day = args[0];
+          /*  String day = args[0];
             String month = args[1];
             String year = args[2];
             String webServerPort = args[3];
-            String dataBasePort = args[4];
+            String dataBasePort = args[4]; */
+
+            String day = "08";
+            String month = "08";
+            String year = "2023";
+            String webServerPort = "9898";
+            String dataBasePort = "9876";
 
             // comment out these sections after the runtime results are out
             long startTime = System.nanoTime(); // time the application
