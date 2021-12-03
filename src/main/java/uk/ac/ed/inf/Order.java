@@ -25,6 +25,7 @@ public class Order {
      */
     public ArrayList<String> itemList;
 
+
     /**
      * this is a constructor of the Order class
      *
@@ -38,17 +39,15 @@ public class Order {
         this.itemList = itemList;
     }
 
+
     /**
      * this method calculate the total amount of money made by doing this order
      * include a fixed 50 pence of delivery charge
      *
-     * @param webPort this is the portal of the webserver where the menu of the
-     *                shop is stored
+     * @param itemsPriceMap this is the map storing all the item price information related to item names
      * @return the total price of this order included the 50p delivery charge
      */
-    public int getOrderCost(String webPort){
-        Menus menus = new Menus(webPort);
-        HashMap<String, Integer> itemsPriceMap = menus.getAllItemsPrice();
+    public int getOrderCost(HashMap<String, Integer> itemsPriceMap){
         int PRICE = 0;
         try{
             for(String item : itemList){
@@ -66,12 +65,10 @@ public class Order {
      * this method return a set of all the shops needs to visit to pick up all the items
      * required in the order.
      *
-     * @param webPort this is the portal of the web server where the menu of the shop is stored
+     * @param itemsLocationMap this is the map storing all the location information related to item names
      * @return a set of all the unique shops need to travel to
      */
-    public List<String> getOrderShops(String webPort){
-        Menus menus = new Menus(webPort);
-        HashMap<String, String> itemsLocationMap = menus.getAllItemsLocation();
+    public List<String> getOrderShops(HashMap<String, String> itemsLocationMap){
         Set<String> shopLocations = new HashSet<>();
         for(String item : itemList){
             try{

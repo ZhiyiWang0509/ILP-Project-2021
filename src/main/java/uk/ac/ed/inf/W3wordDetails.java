@@ -34,7 +34,6 @@ public class W3wordDetails {
      * this is a representation of the location on 'https://w3w.co' website
      */
     private String map;
-
     /**
      * this is an inner class created to match the field: coordinates on the json file
      */
@@ -42,7 +41,6 @@ public class W3wordDetails {
         Double lng;
         Double lat;
     }
-
     /**
      * this is an inner class to match the field square on the json file
      */
@@ -50,7 +48,6 @@ public class W3wordDetails {
         Coordinate southwest;
         Coordinate northeast;
     }
-
     /**
      * this method would return the LongLat location corresponding to the w3words location
      * as a LongLat object

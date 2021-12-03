@@ -32,7 +32,6 @@ public class Menus {
      * @return an Array list of all the shops available for the delivery service
      */
     private ArrayList<Shop> getShops(){
-        // create an instance of WebAccess class to get the content in menus.json
         WebAccess newAccess = new WebAccess(webPort,"menus","menus");
         Type listType = new TypeToken<ArrayList<Shop>>(){}.getType();
         return new Gson().fromJson(String.valueOf(newAccess.getResponse()), listType);

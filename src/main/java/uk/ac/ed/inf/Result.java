@@ -42,8 +42,8 @@ public class Result {
             LineString lineString = LineString.fromLngLats(flightPathPoints);
             Feature feature = Feature.fromGeometry(lineString);
             FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-            // initiate a file writer
             String fileName = "drone-" + drone.day + "-" + drone.month + "-" + drone.year;
+            // initiate a file writer
             try {
                 FileWriter geojsonFile = new FileWriter(fileName);
                 geojsonFile.write(featureCollection.toJson());
@@ -54,8 +54,8 @@ public class Result {
                 System.exit(1);
             }
             // store 'deliveries' and 'flightpath' table in the database
-            DataBase database = new DataBase(drone.dataBasePort);
-            database.createDeliveriesDb(drone.orderDataBase, drone.webServerPort);
+            DataBase database = new DataBase(drone.dataBasePort, drone.webServerPort);
+            database.createDeliveriesDb(drone.orderDataBase);
             database.createFlightPathDb(drone.flightPathDataBase);
 
         } catch (ArrayIndexOutOfBoundsException|NullPointerException e) {

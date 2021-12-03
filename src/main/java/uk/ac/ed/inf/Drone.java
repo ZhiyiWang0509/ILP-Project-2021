@@ -59,6 +59,14 @@ public class Drone {
      */
     private final List<LongLat> landmarks;
     /**
+     * this is the map used to lookup item's price
+     */
+    private final HashMap<String, Integer> allItemPrices;
+    /**
+     * this is the map used to lookup item's location
+     */
+    private final HashMap<String, String> allItemShops;
+    /**
      * this the date of making the delivery
      */
     private final String date;
@@ -100,11 +108,15 @@ public class Drone {
         // this is the file name of the 'no-fly-zones.geojson' file without file extension.
         String NO_FLY_ZONES = "no-fly-zones";
         this.noFlyZones = new Buildings(webServerPort, NO_FLY_ZONES).getNoFlyBorders();
+
         //this is the file name of the 'landmarks.geojson' file without file extension.
         String LANDMARKS = "landmarks";
         this.landmarks = new Buildings(webServerPort, LANDMARKS).getLandMarks();
-        // this is the date of making the deliveries
         this.date = year + "-" + month + "-" + day;
+
+        Menus menu = new Menus(webServerPort);
+        this.allItemPrices = menu.getAllItemsPrice();
+        this.allItemShops = menu.getAllItemsLocation();
     }
 
     /**
@@ -115,12 +127,12 @@ public class Drone {
      * @return a list of valid orders as Order objects.
      */
     private List<Order> getValidOrders() {
-        DataBase ordersDb = new DataBase(dataBasePort);
+        DataBase ordersDb = new DataBase(dataBasePort, webServerPort);
         ArrayList<Order> orders = ordersDb.getOrders(date);
         List<Order> validOrders = new ArrayList<>();
         try{
             for (Order order : orders) {
-                if (order.itemList.size() <= 4 && order.getOrderShops(webServerPort).size() <= 2) {
+                if (order.itemList.size() <= 4 && order.getOrderShops(allItemShops).size() <= 2) {
                     validOrders.add(order);
                 }
             }
@@ -146,8 +158,8 @@ public class Drone {
         List<Double> valueMoveRatios = new ArrayList<>();
         try{
             for(Order order : orderList){
-                comparator.put(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order),order);
-                valueMoveRatios.add(order.getOrderCost(webServerPort)/(double)getRouteMovesCount(order));
+                comparator.put(order.getOrderCost(allItemPrices)/(double)getRouteMovesCount(order),order);
+                valueMoveRatios.add(order.getOrderCost(allItemPrices)/(double)getRouteMovesCount(order));
 
             }
         }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
@@ -206,6 +218,8 @@ public class Drone {
             Order lastOrder = validOrders.get(LAST_ORDER_INDEX);
             geoJsonList.add(currentLocation);
             System.out.println("Orders undelivered: " + validOrders.size());
+            int value = 0;
+            int total_value = 0;
             while (!validOrders.isEmpty()) {
                 Order order = getNextOrder(validOrders);
                 LongLat deliverTo = w3words.toLongLat(order.deliverTo);
@@ -216,7 +230,7 @@ public class Drone {
                 int returnMoves = getMovesToAT(deliverTo);
                 // this is to check if the drone still have moves left for returning after finishing this order
                 if ((MOVE_LEFT - orderMoves) >= returnMoves) {
-                    List<String> shops = order.getOrderShops(webServerPort);
+                    List<String> shops = order.getOrderShops(allItemShops);
                     try{
                         while (!shops.isEmpty()) {
                             String shop = getNextShop(shops);
@@ -241,12 +255,15 @@ public class Drone {
                     // at this point, an order is made
                     travelTo(orderNo, deliverTo);
                     orderDataBase.add(order);
+                    value += order.getOrderCost(allItemPrices);
+                    total_value += order.getOrderCost(allItemPrices);
                     validOrders.remove(order);
                     MOVE_LEFT -= 1;
                 }
-                // this is the case if the drone doesn't have enough move to complete the next order
+                // drone give up this order and return to the order-move check
                 else {
                     validOrders.remove(order);
+                    total_value += order.getOrderCost(allItemPrices);
                 }
             }
             if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
@@ -257,7 +274,7 @@ public class Drone {
             travelTo(lastOrder.orderNO, APPLETON_TOWER);
             System.out.println("Moves left: " + MOVE_LEFT);
             System.out.println("Orders delivered: " + orderDataBase.size());
-            //System.out.println(flightPathDataBase.size());
+            System.out.println("Percentage Monetary Value made: " + ((double)value/(double) total_value * 100));
         }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
             System.err.println("Order collection is empty");
             System.exit(1);
@@ -325,10 +342,10 @@ public class Drone {
         // the route start from the drone's current location
         routeBuilder.add(currentLocation);
         W3words w3words = new W3words(webServerPort);
-        for (String shop : order.getOrderShops(webServerPort)) {
+        for (String shop : order.getOrderShops(allItemShops)) {
             routeBuilder.add(w3words.toLongLat(shop));
         }
-        List<String> shopList = order.getOrderShops(webServerPort);
+        List<String> shopList = order.getOrderShops(allItemShops);
         try{
             while(!shopList.isEmpty()){
                 String nextShop = getNextShop(shopList);

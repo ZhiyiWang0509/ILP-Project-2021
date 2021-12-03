@@ -2,6 +2,7 @@ package uk.ac.ed.inf;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,6 +24,8 @@ public class DataBase {
      * this the portal number of the database to access.
      */
     public String dataBasePort;
+
+    public String webServerPort;
     /**
      * this is the name of the 'orders' database.
      */
@@ -32,13 +35,19 @@ public class DataBase {
      */
     private static final String ORDER_DETAILS = "orderDetails";
 
+    private Menus menu;
+    private final HashMap<String, Integer> allItemPrices;
+
     /**
      * this is the constructor of the Database class
      *
      * @param dataBasePort this is the portal number of the database to access.
      */
-    public DataBase(String dataBasePort) {
+    public DataBase(String dataBasePort, String webServerPort) {
         this.dataBasePort = dataBasePort;
+        this.webServerPort = webServerPort;
+        this.menu = new Menus(webServerPort);
+        this.allItemPrices = menu.getAllItemsPrice();
     }
 
     /**
@@ -123,9 +132,9 @@ public class DataBase {
      * and at the end of the method, as well as the connection to the database.
      *
      * @param orderList this is a list of Order objects, corresponding to the orders made on the specified day.
-     * @param webServerPort this is the portal number of the web server to access the order's delivery cost.
+     *
      */
-    public void createDeliveriesDb(List<Order> orderList, String webServerPort){
+    public void createDeliveriesDb(List<Order> orderList){
         String jdbcString = getJdbcString();
         try {
             Connection conn = DriverManager.getConnection(jdbcString);
@@ -139,21 +148,22 @@ public class DataBase {
                     "orderNo char(8), " +
                     "deliveredTo varchar(19), " +
                     "costInPence int)");
-            PreparedStatement psOrder = conn.prepareStatement(
-                    "insert into deliveries values (?,?,?)");
-            try{
-                for(Order order : orderList){
-                    psOrder.setString(1, order.orderNO);
-                    psOrder.setString(2,order.deliverTo);
-                    psOrder.setInt(3,order.getOrderCost(webServerPort));
-                    psOrder.execute();
 
+            String dataBaseQuery = "INSERT INTO deliveries VALUES ";
+            StringBuilder dataBaseQueryBody = new StringBuilder();
+            try{
+                for(Order order:orderList){
+                    String entry = "('"+order.orderNO+"','"+order.deliverTo+"',"+order.getOrderCost(allItemPrices)+")"+",";
+                    dataBaseQueryBody.append(entry);
                 }
-                System.out.println("Database generated successfully");
-            } catch (NullPointerException e){
-                System.err.println("The input Order collection is empty");
+            }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+                System.err.println("No order is made!");
                 System.exit(1);
             }
+
+            dataBaseQueryBody.setLength(dataBaseQueryBody.length()-1);
+            statement.execute(dataBaseQuery+ dataBaseQueryBody);
+            System.out.println("Database generated successfully");
             statement.close();
             conn.close();
         } catch (SQLException e) {
@@ -190,25 +200,24 @@ public class DataBase {
                     "angle integer, " +
                     "toLongitude double, " +
                     "toLatitude double)");
-            PreparedStatement psFlightPath = conn.prepareStatement(
-                    "insert into flightpath values (?,?,?,?,?,?)");
+
+            String dataBaseQuery = "INSERT INTO flightpath VALUES ";
+            StringBuilder dataBaseQueryBody = new StringBuilder();
             try{
-                for(FlightPath flightPath : flightPaths){
-                    psFlightPath.setString(1, flightPath.orderNo);
-                    psFlightPath.setDouble(2,flightPath.fromLongitude);
-                    psFlightPath.setDouble(3,flightPath.fromLatitude);
-                    psFlightPath.setInt(4,flightPath.angle);
-                    psFlightPath.setDouble(5,flightPath.tolongitude);
-                    psFlightPath.setDouble(6,flightPath.toLatitude);
-                    psFlightPath.execute();
+                for(FlightPath flightPath:flightPaths){
+                    String entry = "('"+flightPath.orderNo+"',"+flightPath.fromLongitude+","+flightPath.fromLatitude+","+flightPath.angle+","
+                            +flightPath.tolongitude +","+flightPath.toLatitude+"),";
+                    dataBaseQueryBody.append(entry);
                 }
-                System.out.println("Database generated successfully");
-            } catch(NullPointerException e){
-                System.err.println("The FlightPath collection provided is empty");
+            }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
+                System.err.println("No order is made!");
                 System.exit(1);
             }
+            dataBaseQueryBody.setLength(dataBaseQueryBody.length()-1);
+            statement.execute(dataBaseQuery+dataBaseQueryBody);
+            System.out.println("Database generated successfully");
             statement.close();
-            conn.close(); //shutdown the database
+            conn.close();
         } catch (SQLException e) {
             System.err.println("The connection failed in flightpath table");
             System.exit(1);

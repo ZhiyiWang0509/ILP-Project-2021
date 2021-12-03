@@ -93,16 +93,12 @@ public class WebAccess {
                 .uri(URI.create(url))
                 .build();
         HttpResponse<String> response = null;
-        try{
-            {
-                try {
-                    response = client.send(request, BodyHandlers.ofString());
-                } catch (IOException | InterruptedException e) {
-                    System.err.println("Issue connecting to webserver");
-                    System.exit(1);
-                }
-            }
-        }catch(NullPointerException e){
+        try {
+            response = client.send(request, BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Issue connecting to webserver");
+            System.exit(1);
+        } catch(NullPointerException e){
             System.err.println("The response from the Webserver is empty");
             System.exit(1);
         }catch (Exception e){
