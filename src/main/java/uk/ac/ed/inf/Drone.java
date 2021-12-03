@@ -17,23 +17,23 @@ public class Drone {
     /**
      * this is the year of the date when the deliveries are made
      */
-    public String year;
+    private final String year;
     /**
      * this is the month of the date when the deliveries are made
      */
-    public String month;
+    private final String month;
     /**
      * this is the day of the date when the deliveries are made
      */
-    public String day;
+    private final String day;
     /**
      * this is the portal of the webserver to access
      */
-    public String webServerPort;
+    private final String webServerPort;
     /**
      * this is the portal of the database to access
      */
-    public String dataBasePort;
+    private final String dataBasePort;
     /**
      * this is a count on the moves left in the drone
      * at the beginning the move left is at the upper limit 1500.
@@ -73,15 +73,15 @@ public class Drone {
     /**
      * this is a list of coordinates visited by the drone during the day's delivery journey
      */
-    public List<LongLat> geoJsonList = new ArrayList<>();
+    private final List<LongLat> geoJsonList = new ArrayList<>();
     /**
      * this is a list of orders made by the drone during the day's delivery journey
      */
-    public List<Order> orderDataBase = new ArrayList<>();
+    private final List<Order> orderDataBase = new ArrayList<>();
     /**
      * this is a list of flightpath made by the drone during the day's delivery journey
      */
-    public List<FlightPath> flightPathDataBase = new ArrayList<>();
+    private final List<FlightPath> flightPathDataBase = new ArrayList<>();
 
     /**
      * this is the constructor of the Drone class
@@ -114,6 +114,67 @@ public class Drone {
     }
 
     /**
+     * this is the getter of the year
+     * @return the year of the delivery made
+     */
+    public String getYear() {
+        return year;
+    }
+
+    /**
+     * this is the getter of the month
+     * @return the month the delivery is made
+     */
+    public String getMonth() {
+        return month;
+    }
+
+    /**
+     * this is the getter of the day
+     * @return the day the delivery is made
+     */
+    public String getDay() {
+        return day;
+    }
+    /**
+     * this is the getter of the database portal
+     * @return the database portal
+     */
+    public String getWebServerPort() {
+        return webServerPort;
+    }
+    /**
+     * this is the getter of the webserver portal
+     * @return the webserver portal
+     */
+    public String getDataBasePort() {
+        return dataBasePort;
+    }
+
+    /**
+     * this is the getter of the list of coordinates for GeoJSON output
+     * @return the collection of coordinate for GeoJSON output
+     */
+    public List<LongLat> getGeoJsonList() {
+        return geoJsonList;
+    }
+
+    /**
+     * this is the getter of the list of orders made
+     * @return the collection of orders made
+     */
+    public List<Order> getOrderDataBase() {
+        return orderDataBase;
+    }
+    /**
+     * this is the getter of the list of flight path made
+     * @return the list of flight path made
+     */
+    public List<FlightPath> getFlightPathDataBase() {
+        return flightPathDataBase;
+    }
+
+    /**
      * this method return the valid orders to deliver on the day as a list of Order objects
      * a valid order contains no more than four items and the number of shops need to visit is no
      * more than two.
@@ -126,7 +187,7 @@ public class Drone {
         List<Order> validOrders = new ArrayList<>();
         try{
             for (Order order : orders) {
-                if (order.itemList.size() <= 4 && order.getOrderShops(allItemShops).size() <= 2) {
+                if (order.getItemList().size() <= 4 && order.getOrderShops(allItemShops).size() <= 2) {
                     validOrders.add(order);
                 }
             }
@@ -209,8 +270,8 @@ public class Drone {
             geoJsonList.add(currentLocation);
             while (!validOrders.isEmpty()) {
                 Order order = getNextOrder(validOrders);
-                LongLat deliverTo = w3words.toLongLat(order.deliverTo);
-                String orderNo = order.orderNO;
+                LongLat deliverTo = w3words.toLongLat(order.getDeliverTo());
+                String orderNo = order.getOrderNO();
 
                 int orderMoves = getRouteMovesCount(order);
                 int returnMoves = getMovesToAT(deliverTo);
@@ -251,10 +312,10 @@ public class Drone {
             }
             if (checkNoFlyZones(currentLocation, APPLETON_TOWER)) {
                 LongLat landmark = getLandMark(currentLocation, APPLETON_TOWER);
-                travelTo(lastOrder.orderNO, landmark);
+                travelTo(lastOrder.getOrderNO(), landmark);
             }
             // at this point, the drone has finished all the orders and returned to the Appleton Tower
-            travelTo(lastOrder.orderNO, APPLETON_TOWER);
+            travelTo(lastOrder.getOrderNO(), APPLETON_TOWER);
         }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
             System.err.println("Order collection is empty");
             System.exit(1);
@@ -294,8 +355,8 @@ public class Drone {
             while (!currentLocation.closeTo(ToLoc)) {
                 int angle = currentLocation.getAngle(ToLoc);
                 LongLat nextLocation = currentLocation.nextPosition(angle);
-                FlightPath flightPath = new FlightPath(orderNo, currentLocation.longitude, currentLocation.latitude, angle,
-                        nextLocation.longitude, nextLocation.latitude);
+                FlightPath flightPath = new FlightPath(orderNo, currentLocation.getLongitude(), currentLocation.getLatitude(), angle,
+                        nextLocation.getLatitude(), nextLocation.getLatitude());
                 flightPaths.add(flightPath);
                 updateLocation(nextLocation);
                 coordinates.add(currentLocation);
@@ -330,7 +391,7 @@ public class Drone {
                 routeBuilder.add(w3words.toLongLat(nextShop));
                 shopList.remove(nextShop);
             }
-            routeBuilder.add(w3words.toLongLat(order.deliverTo));
+            routeBuilder.add(w3words.toLongLat(order.getDeliverTo()));
             for (int i = 1; i < routeBuilder.size(); i++) {
                 // this is the index of the previous location
                 int j = i - 1;
@@ -389,8 +450,8 @@ public class Drone {
      * @return true if the path would cross with any of the no-fly-zones borders.
      */
     private Boolean checkNoFlyZones(LongLat startLoc, LongLat finishLoc) {
-        Line2D dronePath = new Line2D.Double(startLoc.longitude, startLoc.latitude,
-                                            finishLoc.longitude, finishLoc.latitude);
+        Line2D dronePath = new Line2D.Double(startLoc.getLongitude(), startLoc.getLatitude(),
+                                            finishLoc.getLongitude(), finishLoc.getLatitude());
         boolean isCrossed;
         try{
             for (Line2D border : noFlyZones) {

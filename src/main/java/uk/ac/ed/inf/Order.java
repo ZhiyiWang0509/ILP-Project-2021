@@ -11,15 +11,15 @@ public class Order {
     /**
      * this is the order number of the order
      */
-    public String orderNO;
+    private final String orderNO;
     /**
      * this is the location of the delivery destination
      */
-    public String deliverTo;
+    private final String deliverTo;
     /**
      * this is a collection of all the items' names included in this order
      */
-    public ArrayList<String> itemList;
+    private final ArrayList<String> itemList;
 
     /**
      * this is a constructor of the Order class
@@ -34,6 +34,29 @@ public class Order {
         this.itemList = itemList;
     }
 
+    /**
+     * this is the getter of the field order number
+     * @return the order number of the order
+     */
+    public String getOrderNO() {
+        return orderNO;
+    }
+
+    /**
+     * this is the getter of the field deliverTo
+     * @return the deliver to location of the order
+     */
+    public String getDeliverTo() {
+        return deliverTo;
+    }
+
+    /**
+     *  this is the getter of the item list in the shop
+     * @return a list of items sold in the shop
+     */
+    public ArrayList<String> getItemList() {
+        return itemList;
+    }
 
     /**
      * this method calculate the total amount of money made by doing this order which includes

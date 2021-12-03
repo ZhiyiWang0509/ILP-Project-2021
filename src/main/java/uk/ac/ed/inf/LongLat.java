@@ -10,11 +10,11 @@ public class LongLat {
     /**
      * this is the longitude of the coordinate
      */
-    public double longitude;
+    private final double longitude;
     /**
      * this is the latitude of the coordinate
      */
-    public double latitude;
+    private final double latitude;
     /**
      * this is a single move made by the drone in degree
      */
@@ -29,6 +29,22 @@ public class LongLat {
     public LongLat(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    /**
+     * this is the longitude of the coordinate
+     * @return the longitude of the location
+     */
+    public double getLongitude() {
+        return longitude;
+    }
+
+    /**
+     * this is the latitude of the coordinate
+     * @return the latitude of the location
+     */
+    public double getLatitude() {
+        return latitude;
     }
 
     /**

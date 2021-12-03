@@ -18,7 +18,7 @@ public class Result {
     /**
      * this is the drone that has finished the day's deliveries
      */
-    public Drone drone;
+    private final Drone drone;
 
     /**
      * this is the constructor of the class
@@ -37,13 +37,13 @@ public class Result {
     public void outPutResult() {
         try {
             List<Point> flightPathPoints = new ArrayList<>();
-            for (LongLat location : drone.geoJsonList) {
-                flightPathPoints.add(Point.fromLngLat(location.longitude, location.latitude));
+            for (LongLat location : drone.getGeoJsonList()) {
+                flightPathPoints.add(Point.fromLngLat(location.getLongitude(), location.getLatitude()));
             }
             LineString lineString = LineString.fromLngLats(flightPathPoints);
             Feature feature = Feature.fromGeometry(lineString);
             FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
-            String fileName = "drone-" + drone.day + "-" + drone.month + "-" + drone.year;
+            String fileName = "drone-" + drone.getDay() + "-" + drone.getMonth() + "-" + drone.getYear();
 
             try {
                 FileWriter geojsonFile = new FileWriter(fileName);
@@ -55,9 +55,9 @@ public class Result {
                 System.exit(1);
             }
 
-            DataBase database = new DataBase(drone.dataBasePort, drone.webServerPort);
-            database.createDeliveriesDb(drone.orderDataBase);
-            database.createFlightPathDb(drone.flightPathDataBase);
+            DataBase database = new DataBase(drone.getDataBasePort(), drone.getWebServerPort());
+            database.createDeliveriesDb(drone.getOrderDataBase());
+            database.createFlightPathDb(drone.getFlightPathDataBase());
 
         } catch (ArrayIndexOutOfBoundsException|NullPointerException e) {
             System.err.println("Drone.makeDelivery, has to be called first");

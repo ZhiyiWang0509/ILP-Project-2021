@@ -17,12 +17,12 @@ public class Buildings {
     /**
      * this is the portal of the web server
      */
-    public String webPort;
+    private final String webPort;
     /**
      * this is the name of the file to access on the web server
      * this field could only be "no-fly-zones" or "landmarks"
      */
-    public String fileName;
+    private final String fileName;
 
     /**
      * the constructor of the Buildings class
@@ -89,7 +89,7 @@ public class Buildings {
                     int j = i - 1;
                     LongLat noFlyBorder1 = area.get(j);
                     LongLat noFlyBorder2 = area.get(i);
-                    Line2D border = new Line2D.Double(noFlyBorder1.longitude, noFlyBorder1.latitude, noFlyBorder2.longitude, noFlyBorder2.latitude);
+                    Line2D border = new Line2D.Double(noFlyBorder1.getLongitude(), noFlyBorder1.getLatitude(), noFlyBorder2.getLongitude(), noFlyBorder2.getLatitude());
                     borders.add(border);
                 }
 
@@ -97,7 +97,7 @@ public class Buildings {
                 int LAST_INDEX = area.size()-1;
                 LongLat head = area.get(FIRST_INDEX);
                 LongLat tail = area.get(LAST_INDEX);
-                Line2D lastBorder = new Line2D.Double(head.longitude, head.latitude, tail.longitude, tail.latitude);
+                Line2D lastBorder = new Line2D.Double(head.getLongitude(), head.getLatitude(), tail.getLongitude(), tail.getLatitude());
                 borders.add(lastBorder);
             }
         }catch(Exception e){

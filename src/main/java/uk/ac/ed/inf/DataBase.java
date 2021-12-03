@@ -19,11 +19,7 @@ public class DataBase {
     /**
      * this the portal number of the database.
      */
-    public String dataBasePort;
-    /**
-     * this is the portal number of the web server.
-     */
-    public String webServerPort;
+    private final String dataBasePort;
     /**
      * this is the name of the 'orders' database.
      */
@@ -45,7 +41,7 @@ public class DataBase {
      */
     public DataBase(String dataBasePort, String webServerPort) {
         this.dataBasePort = dataBasePort;
-        this.webServerPort = webServerPort;
+
 
         Menus menu = new Menus(webServerPort);
         this.allItemPrices = menu.getAllItemsPrice();
@@ -147,7 +143,7 @@ public class DataBase {
             StringBuilder dataBaseQueryBody = new StringBuilder();
             try{
                 for(Order order:orderList){
-                    String entry = "('"+order.orderNO+"','"+order.deliverTo+"',"+order.getOrderCost(allItemPrices)+")"+",";
+                    String entry = "('"+order.getOrderNO()+"','"+order.getDeliverTo()+"',"+order.getOrderCost(allItemPrices)+")"+",";
                     dataBaseQueryBody.append(entry);
                 }
             }catch(NullPointerException|ArrayIndexOutOfBoundsException e){
@@ -157,7 +153,7 @@ public class DataBase {
 
             dataBaseQueryBody.setLength(dataBaseQueryBody.length()-1);
             statement.execute(dataBaseQuery+ dataBaseQueryBody);
-            System.out.println("Database generated successfully");
+            System.out.println("deliveries table written successfully");
             statement.close();
             conn.close();
         } catch (SQLException e) {
@@ -207,7 +203,7 @@ public class DataBase {
             }
             dataBaseQueryBody.setLength(dataBaseQueryBody.length()-1);
             statement.execute(dataBaseQuery+dataBaseQueryBody);
-            System.out.println("Database generated successfully");
+            System.out.println("flightpath written successfully");
             statement.close();
             conn.close();
         } catch (SQLException e) {

@@ -10,7 +10,7 @@ public class W3words {
     /**
      * this is the portal of the web server
      */
-    public String webPort;
+    private final String webPort;
 
     /**
      * this is the constructor of W3words class

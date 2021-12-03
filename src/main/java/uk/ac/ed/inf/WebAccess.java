@@ -25,15 +25,15 @@ public class WebAccess {
     /**
      * this is the portal of the webserver
      */
-    public String port;
+    private final String port;
     /**
      * this is the folder name of where the file is located
      */
-    public String folderName;
+    private final String folderName;
     /**
      * this is the name of the file wanted to access without file extension been specified
      */
-    public String fileName;
+    private String fileName;
 
     /**
      * this is the constructor of WebAccess class
