@@ -11,27 +11,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this class is used to output the flight path, coordinates and orders as a result of
- * deliveries made by the drone.
+ * this class is used to output the flight path, coordinates and orders made by the drone as a result
+ * of a day's deliveries
  */
 public class Result {
     /**
-     * this is the drone that made the deliveries
+     * this is the drone that has finished the day's deliveries
      */
     public Drone drone;
 
     /**
      * this is the constructor of the class
-     * @param drone this is the drone that made the deliveries and needs to get the results output.
+     *
+     * @param drone this is the drone that has made the day's deliveries and needs to have its results get outputted.
      */
     public Result(Drone drone) {
         this.drone = drone;
     }
 
     /**
-     * this method would export the results obtained from makeDelivery(),
-     * it would export a geojson file for the drone's flight path and write two tables
-     * in the database, one called "deliveries" the other called "flightpath"
+     * this method would export the results obtained from makeDelivery() method in the Drone class.
+     * it would export a GeoJSON file for the drone's flight path as well as create and write
+     * "deliveries" and "flightpaths" tables in the database
      */
     public void outPutResult() {
         try {
@@ -43,7 +44,7 @@ public class Result {
             Feature feature = Feature.fromGeometry(lineString);
             FeatureCollection featureCollection = FeatureCollection.fromFeature(feature);
             String fileName = "drone-" + drone.day + "-" + drone.month + "-" + drone.year;
-            // initiate a file writer
+
             try {
                 FileWriter geojsonFile = new FileWriter(fileName);
                 geojsonFile.write(featureCollection.toJson());
@@ -53,7 +54,7 @@ public class Result {
                 System.err.println("Failed to generate the Geo json file");
                 System.exit(1);
             }
-            // store 'deliveries' and 'flightpath' table in the database
+
             DataBase database = new DataBase(drone.dataBasePort, drone.webServerPort);
             database.createDeliveriesDb(drone.orderDataBase);
             database.createFlightPathDb(drone.flightPathDataBase);

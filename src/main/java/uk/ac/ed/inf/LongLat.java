@@ -3,7 +3,7 @@ package uk.ac.ed.inf;
 import java.lang.Math;
 
 /**
- * An instance of LongLat class represent a geolocation on the map
+ * this class is used to define a coordinate on a geographical map in this application
  */
 public class LongLat {
 
@@ -33,12 +33,10 @@ public class LongLat {
 
     /**
      * this method check if the location defined is within the confined area
-     * the confined area is a square shape enclosed by the four corners specified
-     * in the method -- MAX_LONGITUDE, MIN_LONGITUDE, MAX_LATITUDE AND MIN_LONGITUDE.
-     * the drone must always move within the confined area.
+     * the confined area is a Square enclosed by the four corners: MAX_LONGITUDE, MIN_LONGITUDE,
+     * MAX_LATITUDE AND MIN_LONGITUDE.
      *
      * @return true if the location is within the area and false otherwise.
-     *
      */
     public boolean isConfined() {
         double MAX_LATITUDE = 55.946233;
@@ -51,10 +49,9 @@ public class LongLat {
     }
 
     /**
-     * this method return the distance between this LongLat location and the location provided
-     * the distance is calculated under Pythagorean distance definition.
+     * this method calculate the Pythagorean distance between this LongLat location and the location provided
      *
-     * @param location this is the other coordinate which form the line segment with this.LongLat for distance calculation
+     * @param location this is the other coordinate which form the line segment with this.LongLat
      * @return the distance between this LongLat location and the given location.
      */
     public double distanceTo(LongLat location) {
@@ -62,10 +59,9 @@ public class LongLat {
     }
 
     /**
-     * this method check if this location is within a move to the given location
-     * a move is defined by a SINGLE_MOVE of 0.00015 degree.
+     * this method check if this location is within a move distance to the given location
      *
-     * @param location this is the location we want to compare with using this location
+     * @param location this is the location we want to compare-to using the local location
      * @return true if this location is within a move to the given location.
      */
     public boolean closeTo(LongLat location) {
@@ -73,9 +69,7 @@ public class LongLat {
     }
 
     /**
-     * this method return the next location of the drone by taking a move in the direction
-     * given as the parameter of this method.
-     * the angle provided must be within 0 and 350 degree and is a multiple of 10.
+     * this method calculate drone's next location after taking a move in the direction specified as the angle provided
      *
      * @param angle this is the direction the drone is flying to
      * @return the position of the drone after taken a move in the given direction
@@ -88,9 +82,7 @@ public class LongLat {
             System.exit(0);
         }
         else {
-            // the distance to the next position in longitude
             double diffLongitude = SINGLE_MOVE * Math.cos(Math.toRadians(angle));
-            // the distance to the next position in latitude
             double diffLatitude = SINGLE_MOVE * Math.sin(Math.toRadians(angle));
             newLatitude += diffLatitude;
             newLongitude += diffLongitude;
@@ -100,13 +92,11 @@ public class LongLat {
 
 
     /**
-     * this method would return the angle between this LongLat location and the given LongLat location
-     * this angle is used as the direction the drone is going to fly in order to get close to the
-     * given location.
+     * this method would calculate the angle between this LongLat location and the given LongLat location, which
+     * indicate the direction of the drone's move
      *
-     * @param destination this is the location the drone is going to travel close to from this location
-     * @return the angle between the given location and this LongLat location as the direction of the
-     * drone's flight.
+     * @param destination this is the location the drone is heading from the local location
+     * @return the angle between the given location and this LongLat location
      */
     public int getAngle(LongLat destination){
         double dY = Math.abs(destination.latitude - latitude);
@@ -147,10 +137,7 @@ public class LongLat {
     }
 
     /**
-     * this method return the number of moves the drone needs in order to get to the
-     * given location from this LongLat location.
-     *
-     * the result is rounded, since SINGLE_MOVE is considered as the minimum moving unit
+     * this method calculate the number of moves the drone needs to travel from this location to the given location.
      *
      * @param destination this is the location the drone is travelling to
      * @return a count of the moves needed to fly from this location to the given destination

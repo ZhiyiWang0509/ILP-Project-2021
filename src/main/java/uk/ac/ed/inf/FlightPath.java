@@ -1,8 +1,7 @@
 package uk.ac.ed.inf;
 
 /**
- * this class is used to store information needed to store in the flightpath database
- * as one of the outcomes of this application.
+ * this class is used when information related to a flightpath is needed to be stored and processed
  *
  */
 public class FlightPath {
@@ -11,11 +10,11 @@ public class FlightPath {
      */
     public String orderNo;
     /**
-     * this is the longitude of the location the drone is travelling from
+     * this is the longitude of the location coordinate the drone is travelling from
      */
     public double fromLongitude;
     /**
-     * this is the latitude of the location the drone is travelling from
+     * this is the latitude of the location coordinate the drone is travelling from
      */
     public double fromLatitude;
     /**
@@ -23,11 +22,11 @@ public class FlightPath {
      */
     public int angle;
     /**
-     * this is the longitude of the location the drone is travelling to
+     * this is the longitude of the location coordinate the drone is travelling to
      */
     public double tolongitude;
     /**
-     * this is the latitude of the location the drone is travelling to
+     * this is the latitude of the location coordinate the drone is travelling to
      */
     public double toLatitude;
 

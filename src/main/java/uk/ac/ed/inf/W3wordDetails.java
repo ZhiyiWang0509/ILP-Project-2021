@@ -1,17 +1,16 @@
 package uk.ac.ed.inf;
 
 /**
- * this class is mainly used as a parser for json files stored in the 'words' folder on the webserver.
- * fields name in this class match exactly to the attribute names in the json file.
+ * this class is used as a GSON parser for files located in the 'words' folder on the webserver.
  *
  */
 public class W3wordDetails {
     /**
-     * this is the country of the location located in
+     * this is the country of the location
      */
     private String country;
     /**
-     * this is to match the 'square' field in the json
+     * this is the 'square' field in the JSON string
      */
     private Square square;
     /**
@@ -19,7 +18,7 @@ public class W3wordDetails {
      */
     private String nearestPlace;
     /**
-     * this is the coordinates of the location as an Coordinate object
+     * this is the coordinates of the location as a Coordinate object
      */
     public Coordinate coordinates;
     /**
@@ -27,7 +26,7 @@ public class W3wordDetails {
      */
     private String words;
     /**
-     * this is to match the 'language' field in json
+     * this is the 'language' field in the JSON string
      */
     private String language;
     /**
@@ -35,24 +34,24 @@ public class W3wordDetails {
      */
     private String map;
     /**
-     * this is an inner class created to match the field: coordinates on the json file
+     * this is an inner class created for the field: coordinates in the JSON string
      */
     private static class Coordinate {
         Double lng;
         Double lat;
     }
     /**
-     * this is an inner class to match the field square on the json file
+     * this is the inner class for the field "square" in the JSON string
      */
     private static class Square {
         Coordinate southwest;
         Coordinate northeast;
     }
+
     /**
-     * this method would return the LongLat location corresponding to the w3words location
-     * as a LongLat object
+     * this method is used to get the location's coordinate
      *
-     * @return the location corresponding to te w3words location as an LongLat object
+     * @return the coordinate corresponding to the w3words location as an LongLat object
      */
     public LongLat getLocation(){
         return new LongLat(coordinates.lng, coordinates.lat);

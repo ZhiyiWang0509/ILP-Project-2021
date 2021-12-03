@@ -6,13 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * this class is used to access information stored in the derby database as well as write outcomes
+ * this class is used to access information stored in the tables: "orders" and "orderdetails" on the derby database
+ * as well as creating and writing tables: "deliveries" and "flightpath" in to the database.
  * into the database.
- * the name of the tables that's able to access is 'orders' and 'orderDetails'.
- * 'orders' table store information on lunch orders, it contains fields: 'orderNo', 'deliveryDate', 'customer' and 'deliverTo'.
- * 'orderDetails' table store detailed information of each order, it contains fields: 'orderNo' and 'item'.
- * the tables that's able to generated via this class are 'deliveries' and 'flightPath' which are required as part of the
- * final outcome of this program.
  *
  */
 public class DataBase {
@@ -21,10 +17,12 @@ public class DataBase {
      */
     private static final String server = "localhost";
     /**
-     * this the portal number of the database to access.
+     * this the portal number of the database.
      */
     public String dataBasePort;
-
+    /**
+     * this is the portal number of the web server.
+     */
     public String webServerPort;
     /**
      * this is the name of the 'orders' database.
@@ -35,7 +33,9 @@ public class DataBase {
      */
     private static final String ORDER_DETAILS = "orderDetails";
 
-    private Menus menu;
+    /**
+     * this is used to store values of (item name, item price) HashMap obtained by calling on menu.
+     */
     private final HashMap<String, Integer> allItemPrices;
 
     /**
@@ -46,28 +46,25 @@ public class DataBase {
     public DataBase(String dataBasePort, String webServerPort) {
         this.dataBasePort = dataBasePort;
         this.webServerPort = webServerPort;
-        this.menu = new Menus(webServerPort);
+
+        Menus menu = new Menus(webServerPort);
         this.allItemPrices = menu.getAllItemsPrice();
     }
 
     /**
-     * this is the location of the database to access
+     * this method is used to construct the location of the database
      *
-     * @return the location of the database to access the derby database.
+     * @return the location of the derby database
      */
     private String getJdbcString(){
         return "jdbc:derby://" + server + ":" + dataBasePort + "/derbyDB";
     }
 
     /**
-     * this method would access the database for information related to an order on a given day
-     * overall, every order made on the date specified would be collected and returned as a list of Order object.
+     * this method is used to collect and store all the information related to the orders of the day.
      *
-     * note that after making a database query, the query of creating the connection needs to be closed and at
-     * the end of the method, as well as the connection to the database.
-     *
-     * @param date this is the date the order is made which corresponding to the 'deliveryDate' column in the 'orders' table
-     * @return a list of Order objects corresponding to the order made on the date specified.
+     * @param date this is the date when the orders are made
+     * @return a list of Order objects that store information of all the orders on the date provided.
      */
     public ArrayList<Order> getOrders(String date){
         ArrayList<Order> orderList = new ArrayList<>();
@@ -125,18 +122,15 @@ public class DataBase {
     }
 
     /**
-     * this method would create a 'deliveries' table in the derby database and write data in.
-     * in order to get the monetary value of the order, the method require access to the web server
-
-     * note that after making a database query, the statement of creating the connection needs to be closed
-     * and at the end of the method, as well as the connection to the database.
+     * this method would create a 'deliveries' table in the derby database and write in the information provided.
      *
-     * @param orderList this is a list of Order objects, corresponding to the orders made on the specified day.
+     * @param orderList this is a collection of all the orders that's successfully delivered by the drone on the
+     *                  specified day.
      *
      */
     public void createDeliveriesDb(List<Order> orderList){
-        String jdbcString = getJdbcString();
         try {
+            String jdbcString = getJdbcString();
             Connection conn = DriverManager.getConnection(jdbcString);
             Statement statement = conn.createStatement();
             DatabaseMetaData databaseMetaData = conn.getMetaData();
@@ -167,7 +161,7 @@ public class DataBase {
             statement.close();
             conn.close();
         } catch (SQLException e) {
-            System.err.println("The connection failed in deliveries table");
+            System.err.println("Failed creation in deliveries table");
             System.exit(1);
         } catch (Exception e){
             System.exit(1);
@@ -175,17 +169,14 @@ public class DataBase {
     }
 
     /**
-     * this method would create a 'flightpath' table in the derby database and write data in.
+     * this method would create a 'flightpath' table in the derby database and write in the information provided.
      *
-     * note that after making a database query, the statement of creating the connection needs to be closed
-     * and at the end of the method, as well as the connection to the database.
-     *
-     * @param flightPaths this is a list of FlightPath objects, with each corresponding to a single path taken by
-     *                    the drone in making the day's deliveries.
+     * @param flightPaths this is a collection of every single flight path made by the drone in the process of
+     *                    delivering the day's order.
      */
     public void createFlightPathDb(List<FlightPath> flightPaths){
-        String jdbcString = getJdbcString();
         try {
+            String jdbcString = getJdbcString();
             Connection conn = DriverManager.getConnection(jdbcString);
             Statement statement = conn.createStatement();
             DatabaseMetaData databaseMetaData = conn.getMetaData();
@@ -205,7 +196,8 @@ public class DataBase {
             StringBuilder dataBaseQueryBody = new StringBuilder();
             try{
                 for(FlightPath flightPath:flightPaths){
-                    String entry = "('"+flightPath.orderNo+"',"+flightPath.fromLongitude+","+flightPath.fromLatitude+","+flightPath.angle+","
+                    String entry = "('"+flightPath.orderNo+"',"+flightPath.fromLongitude+","
+                            +flightPath.fromLatitude+","+flightPath.angle+","
                             +flightPath.tolongitude +","+flightPath.toLatitude+"),";
                     dataBaseQueryBody.append(entry);
                 }
@@ -219,7 +211,7 @@ public class DataBase {
             statement.close();
             conn.close();
         } catch (SQLException e) {
-            System.err.println("The connection failed in flightpath table");
+            System.err.println("Failed creation of flightpath table");
             System.exit(1);
         }catch(Exception e){
             System.exit(1);

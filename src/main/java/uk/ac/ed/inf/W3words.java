@@ -3,30 +3,29 @@ package uk.ac.ed.inf;
 import com.google.gson.Gson;
 
 /**
- * this class acts as a translator of location from W3words string to LongLat object
+ * this class is used as a translator of location from W3words string to LongLat object
  *
  */
 public class W3words {
     /**
-     * this is the portal of the web server to access.
+     * this is the portal of the web server
      */
     public String webPort;
 
     /**
      * this is the constructor of W3words class
      *
-     * @param webPort this is the portal of the webserver to access
+     * @param webPort this is the portal of the webserver
      */
     public W3words(String webPort) {
         this.webPort = webPort;
     }
 
     /**
-     * this method would return the LongLat location corresponding to the w3words
-     * location provided as the parameter by accessing the information stored on the webserver
+     * this method translates a w3words format location to a LongLat location.
      *
      * @param w3wLocation this is the location in w3words format.
-     * @return the location provided as a LongLat object.
+     * @return the LongLat form of the location provided
      */
     public LongLat toLongLat(String w3wLocation){
         WebAccess newWords = new WebAccess(webPort, "words", w3wLocation);

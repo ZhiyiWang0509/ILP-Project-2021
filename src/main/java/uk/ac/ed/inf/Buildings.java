@@ -10,14 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * this class is used to help to transform information stored in geojson files in to more accessible format
- * this class could only allow access to either no-fly-zones.geojson or landmarks.geojson
- * incorrect filename could cause the termination of the program
+ * this class is used to process information stored in GeoJSON files located in the "building" folder
  *
  */
 public class Buildings {
     /**
-     * this is the portal of the web server that store the files needed
+     * this is the portal of the web server
      */
     public String webPort;
     /**
@@ -29,9 +27,8 @@ public class Buildings {
     /**
      * the constructor of the Buildings class
      *
-     * @param webPort the portal of the webserver where the geojson files are stored
-     * @param fileName the name of the file to access on the web
-     *                 the name could only be "no-fly-zones" or "landmarks"
+     * @param webPort the portal of the webserver
+     * @param fileName the name of the file that's located in the buildings folder
      */
     public Buildings(String webPort, String fileName) {
         this.webPort = webPort;
@@ -39,12 +36,9 @@ public class Buildings {
     }
 
     /**
-     * this method get access to the web server and extract information from the file specified
-     * by the file name as a list of Feature object.
-     * the access to the webserver is achieved by creating an instance of WebAccess class and the
-     * content in the file is obtained by calling the getResponse method on that instance.
+     * this method obtain the file content in the GeoJSON files on the webserver
      *
-     * @return a list of Features in the geojson file accessed
+     * @return the content of the file as a collection of Features.
      */
     private List<Feature> getFeatures(){
         WebAccess newBuildings = new WebAccess(webPort, "buildings", fileName);
@@ -53,14 +47,9 @@ public class Buildings {
     }
 
     /**
-     * this method only accept "no-fly-zones.geojson" as file name
-     * this method would return a list of all the no-fly zones
-     * the border of each no-fly zone is represented by a list of
-     * LongLat objects
+     * this method would collect every coordinate that defines the no-fly-zone area.
      *
-     * @return a list of no-fly-zones with each zone be a list of LongLat
-     * object which represent the coordinates of the zone's borders on
-     * a map
+     * @return a list collections of coordinates with each collection specify one part of the no-fly-zone.
      */
     private List<List<LongLat>> getNoFlyCoordinates(){
         if(!fileName.equals("no-fly-zones")){
@@ -72,7 +61,6 @@ public class Buildings {
         try{
             for(Feature fc : features) {
                 assert fc.geometry() != null;
-                // cast the feature to polygon object
                 Polygon polygon = Polygon.fromJson(fc.geometry().toJson());
                 List<LongLat> localPoints = new ArrayList<>();
                 for(Point point : polygon.coordinates().get(0)){
@@ -81,20 +69,16 @@ public class Buildings {
                 }
                 coordinates.add(localPoints);
         }
-        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+        } catch(Exception e){
             System.exit(1);
         }
         return coordinates;
     }
 
     /**
-     *  this method transform the no-fly-zones in to a list of 2D lines
-     *  each line represent a part of the border for a no-fly-zone
-     *  since a border is defined as a complete outline of an area
-     *  therefore after the looping of all the points in each no-fly-zone the route from
-     *  the last point to the first point is also considered
+     *  this method organize the collections of no-fly-zone coordinates into a collection of no-fly-zone border lines.
      *
-     * @return a list of no-fly-zones' borderlines represented by Line2D object
+     * @return a list of no-fly-zone borderlines
      */
     public List<Line2D> getNoFlyBorders(){
         List<Line2D> borders =  new ArrayList<>();
@@ -108,23 +92,22 @@ public class Buildings {
                     Line2D border = new Line2D.Double(noFlyBorder1.longitude, noFlyBorder1.latitude, noFlyBorder2.longitude, noFlyBorder2.latitude);
                     borders.add(border);
                 }
-                // the first coordinate
-                LongLat head = area.get(0);
-                // the last coordinate
-                LongLat tail = area.get(area.size()-1);
+
+                int FIRST_INDEX = 0;
+                int LAST_INDEX = area.size()-1;
+                LongLat head = area.get(FIRST_INDEX);
+                LongLat tail = area.get(LAST_INDEX);
                 Line2D lastBorder = new Line2D.Double(head.longitude, head.latitude, tail.longitude, tail.latitude);
                 borders.add(lastBorder);
             }
-        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+        }catch(Exception e){
             System.exit(1);
         }
         return borders;
     }
 
     /**
-     * this method only accept "landmarks" as file name
-     * this method return all the landmarks the drone is able to travel to when it would cross no-fly-zones
-     * during delivery
+     * this method collect all the landmark locations
      *
      * @return a list of landmark location as LongLat objects
      */
@@ -141,7 +124,7 @@ public class Buildings {
                 LongLat location = new LongLat(point.longitude(), point.latitude());
                 coordinates.add(location);
             }
-        }catch(ArrayIndexOutOfBoundsException|NullPointerException e){
+        }catch(Exception e){
             System.exit(1);
         }
         return coordinates;

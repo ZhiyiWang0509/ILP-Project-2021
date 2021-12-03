@@ -4,11 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *  This class act as a json parser for the Menus.json file stored on the web server
- *  it also contains methods to transform vital attributes: location, menu,into a format that's
- *  easier to apply in other classes
- *
- *  fields name in this class match exactly to the attribute names in the json file.
+ *  this class is used as a GSON parser for the file located in the 'menus' folder on the webserver.
  *
  */
 public class Shop {
@@ -23,30 +19,20 @@ public class Shop {
     public String location;
     /**
      * this is the menu of the shop
-     * a menu contain information of the items sell in the shop
-     * and their prices
      */
     public List<MenuDetails> menu;
-
     /**
-     * MenuDetails is an inner class of the Shop class
-     * it's used to parse the MenuDetails in the json file
-     *
-     * item field store the name of the item sell
-     * pence field store the price of the item sell in pence
-     *
+     * this is an inner class created for the field: menu in the JSON string
      */
-    public static class MenuDetails {
+    private static class MenuDetails {
         String item;
         Integer pence;
     }
 
-
     /**
-     * this method is used when there's needs to lookup item's price using item name
+     * this method organize price information for items in this shop
      *
-     * @return a hashmap of the items on the menu with item names corresponding to
-     * items' prices
+     * @return a hashmap of the (item name, item price) pairs for items in this shop
      */
     public HashMap<String, Integer> getItemsPrice(){
         HashMap<String, Integer> itemPriceMap = new HashMap<>();
@@ -57,9 +43,9 @@ public class Shop {
     }
 
     /**
-     * this method is used when there's needs to lookup item's shop location using item name
+     * this method organize shop location information for items in this shop
      *
-     * @return a hashmap of item names corresponding to the shop location
+     * @return a hashmap of (item name, shop location) pairs for items in this shop
      */
     public HashMap<String, String> getShopLocation(){
         HashMap<String, String> itemLocationMap = new HashMap<>();
