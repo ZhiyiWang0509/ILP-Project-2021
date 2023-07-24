@@ -8,27 +8,27 @@ public class FlightPath {
     /**
      * this is the order number of the order that's delivered on this flight path.
      */
-    public String orderNo;
+    private final String orderNo;
     /**
      * this is the longitude of the location coordinate the drone is travelling from
      */
-    public double fromLongitude;
+    private final double fromLongitude;
     /**
      * this is the latitude of the location coordinate the drone is travelling from
      */
-    public double fromLatitude;
+    private final double fromLatitude;
     /**
      * this is the angle between the traveling from location and the traveling to location
      */
-    public int angle;
+    private final int angle;
     /**
      * this is the longitude of the location coordinate the drone is travelling to
      */
-    public double tolongitude;
+    private final double tolongitude;
     /**
      * this is the latitude of the location coordinate the drone is travelling to
      */
-    public double toLatitude;
+    private final double toLatitude;
 
     /**
      * this is the constructor of FlightPath class
@@ -47,5 +47,49 @@ public class FlightPath {
         this.angle = angle;
         this.tolongitude = tolongitude;
         this.toLatitude = toLatitude;
+    }
+
+    /**
+     * this is the getter of the order number
+     * @return the order number
+     */
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    /**
+     * this is the getter of the from-longitude
+     * @return the from-longitude
+     */
+    public double getFromLongitude() {
+        return fromLongitude;
+    }
+    /**
+     * this is the getter of the from-longitude
+     * @return the from-longitude
+     */
+    public double getFromLatitude() {
+        return fromLatitude;
+    }
+    /**
+     * this is the getter of the angle
+     * @return the angle
+     */
+    public int getAngle() {
+        return angle;
+    }
+    /**
+     * this is the getter of the to-longitude
+     * @return the to-longitude
+     */
+    public double getTolongitude() {
+        return tolongitude;
+    }
+    /**
+     * this is the getter of the to-latitude
+     * @return the to-latitude
+     */
+    public double getToLatitude() {
+        return toLatitude;
     }
 }

@@ -8,31 +8,31 @@ public class W3wordDetails {
     /**
      * this is the country of the location
      */
-    private String country;
+    private final String country;
     /**
      * this is the 'square' field in the JSON string
      */
-    private Square square;
+    private final Square square;
     /**
      * this is the nearest city relative to the location
      */
-    private String nearestPlace;
+    private final String nearestPlace;
     /**
      * this is the coordinates of the location as a Coordinate object
      */
-    public Coordinate coordinates;
+    private final Coordinate coordinates;
     /**
      * this is the w3words format of the location
      */
-    private String words;
+    private final String words;
     /**
      * this is the 'language' field in the JSON string
      */
-    private String language;
+    private final String language;
     /**
      * this is a representation of the location on 'https://w3w.co' website
      */
-    private String map;
+    private final String map;
     /**
      * this is an inner class created for the field: coordinates in the JSON string
      */
@@ -46,6 +46,16 @@ public class W3wordDetails {
     private static class Square {
         Coordinate southwest;
         Coordinate northeast;
+    }
+
+    public W3wordDetails(String country, Square square, String nearestPlace, Coordinate coordinates, String words, String language, String map) {
+        this.country = country;
+        this.square = square;
+        this.nearestPlace = nearestPlace;
+        this.coordinates = coordinates;
+        this.words = words;
+        this.language = language;
+        this.map = map;
     }
 
     /**

@@ -12,21 +12,33 @@ public class Shop {
     /**
      * this is the name of the shop
      */
-    private String name;
+    private final String name;
     /**
      * this is the location of the shop encoded in W3words format
      */
-    public String location;
+    private final String location;
     /**
      * this is the menu of the shop
      */
-    public List<MenuDetails> menu;
+    private final List<MenuDetails> menu;
     /**
      * this is an inner class created for the field: menu in the JSON string
      */
     private static class MenuDetails {
         String item;
         Integer pence;
+    }
+
+    /**
+     * this is the constructor of the class
+     * @param name this is the name of the shop
+     * @param location this is the location of the shop encoded in W3words format
+     * @param menu this is the menu of the sho
+     */
+    public Shop(String name, String location, List<MenuDetails> menu) {
+        this.name = name;
+        this.location = location;
+        this.menu = menu;
     }
 
     /**

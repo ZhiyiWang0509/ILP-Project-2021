@@ -192,9 +192,9 @@ public class DataBase {
             StringBuilder dataBaseQueryBody = new StringBuilder();
             try{
                 for(FlightPath flightPath:flightPaths){
-                    String entry = "('"+flightPath.orderNo+"',"+flightPath.fromLongitude+","
-                            +flightPath.fromLatitude+","+flightPath.angle+","
-                            +flightPath.tolongitude +","+flightPath.toLatitude+"),";
+                    String entry = "('"+flightPath.getOrderNo()+"',"+flightPath.getFromLongitude()+","
+                            +flightPath.getFromLatitude()+","+flightPath.getAngle()+","
+                            +flightPath.getTolongitude() +","+flightPath.getToLatitude()+"),";
                     dataBaseQueryBody.append(entry);
                 }
             }catch(NullPointerException|ArrayIndexOutOfBoundsException e){

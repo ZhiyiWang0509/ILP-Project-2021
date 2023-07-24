@@ -14,7 +14,7 @@ public class Menus {
     /**
      * this is the portal of the webserver
      */
-    public String webPort;
+    private final String webPort;
 
     /**
      * this is the constructor of the Menu class
