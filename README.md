@@ -3,4 +3,4 @@ This is the GitHub repo for the project completed in the Informatic Large Practi
 
 The ilp-report pdf file explains the design of the system and the use of each class. 
 
-To see the code, go to src/
+To see the code, go to src/main/ed/ac/uk/inf
